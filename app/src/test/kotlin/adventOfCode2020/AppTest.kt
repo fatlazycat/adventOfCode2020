@@ -4,11 +4,17 @@
 package adventOfCode2020
 
 import kotlin.test.Test
-import kotlin.test.assertNotNull
 
 class AppTest {
-    @Test fun testAppHasAGreeting() {
-        val classUnderTest = App()
-        assertNotNull(classUnderTest.greeting, "app should have a greeting")
+    @Test fun testDayOne() {
+        println("size now is " + TestData.day1.size)
+        val lessThan2020 = TestData.day1.filter { it < 2020 }
+        println("size now is " + lessThan2020.size)
+        val matches = lessThan2020.map { v -> sumTo2020(v, lessThan2020.filter { it != v }) }.flatten()
+        print("Result = " + matches + matches.map { p -> p.first * p.second })
+    }
+
+    private fun sumTo2020(left: Int, right: List<Int>): List<Pair<Int,Int>> {
+        return right.map{ Pair(left, it) }.filter{ p -> p.first + p.second == 2020 }
     }
 }
