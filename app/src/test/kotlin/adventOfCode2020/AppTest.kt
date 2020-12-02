@@ -10,11 +10,67 @@ class AppTest {
         println("size now is " + TestData.day1.size)
         val lessThan2020 = TestData.day1.filter { it < 2020 }
         println("size now is " + lessThan2020.size)
-        val matches = lessThan2020.map { v -> sumTo2020(v, lessThan2020.filter { it != v }) }.flatten()
+        val matches = matchesd1p1(lessThan2020)
         print("Result = " + matches + matches.map { p -> p.first * p.second })
+        assert(matches == listOf(Pair(321, 1699), Pair(1699, 321)))
+    }
+
+    @Test fun testDayOnePartTwo() {
+        println("size now is " + TestData.day1.size)
+        val lessThan2020 = TestData.day1.filter { it < 2020 }
+        println("size now is " + lessThan2020.size)
+        val result = triples(lessThan2020)
+        result?.let { t -> println("answer is " + (t.first * t.second * t.third)) }
+    }
+
+    private fun matchesd1p1(values: List<Int>) : List<Pair<Int,Int>> {
+        return values.map { v -> sumTo2020(v, values.filter { it != v }) }.flatten()
     }
 
     private fun sumTo2020(left: Int, right: List<Int>): List<Pair<Int,Int>> {
         return right.map{ Pair(left, it) }.filter{ p -> p.first + p.second == 2020 }
+    }
+
+    private fun triples(l: List<Int>) : Triple<Int, Int, Int>? {
+        for (first in l) {
+            for(second in l) {
+                for(third in l) {
+                    if(first != second && second != third && first != third && (first + second + third) == 2020) {
+                        return Triple(first, second, third)
+                    }
+                }
+            }
+        }
+
+        return null
+    }
+
+    @Test fun testDayTwo() {
+        val passing = TestData.day2.filter { s -> passwordMatch(s.split(" ")) }
+        println("count is " + passing.size)
+    }
+
+    @Test fun testDayTwoPartTwo() {
+        val passing = TestData.day2.filter { s -> passwordMatchPartTwo(s.split(" ")) }
+        println("count is " + passing.size)
+    }
+
+    private fun passwordMatch(values: List<String>) : Boolean {
+        val low = values[0].split("-")[0].toInt()
+        val high = values[0].split("-")[1].toInt()
+        val letter = values[1].split(":")[0][0]
+        val password = values[2]
+        val occurrences = password.count { it == letter }
+
+        return occurrences in low..high
+    }
+
+    private fun passwordMatchPartTwo(values: List<String>) : Boolean {
+        val low = values[0].split("-")[0].toInt() - 1
+        val high = values[0].split("-")[1].toInt() - 1
+        val letter = values[1].split(":")[0][0]
+        val password = values[2]
+
+        return (password[low] == letter && password[high] != letter) || (password[low] != letter && password[high] == letter)
     }
 }
