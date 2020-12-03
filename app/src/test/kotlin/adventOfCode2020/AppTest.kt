@@ -79,6 +79,13 @@ class AppTest {
         val beyondRow = TestData.day3.size
 
         assert(numTrees(3,1, data, beyondRow) == 268)
+
+        val woods: Map<Pair<Int, Int>, Char> = TestData.day3.mapIndexed{ rowIndex, row -> row.mapIndexed{ colIndex, cell -> Pair(Pair(colIndex, rowIndex), cell)}}.flatten().toMap()
+        val col = 3
+        val row = 1
+        val path = (row..beyondRow step row).map { i -> Pair((col * i).rem(31), i) }
+        val trees = path.fold(0){total, step -> if (woods[step] == '#') total+1 else total}
+        assert(trees == 268)
     }
 
     @Test fun testDay3PartTwo() {
@@ -94,17 +101,11 @@ class AppTest {
     }
 
     private fun numTrees(col: Int, row: Int, data: Map<Pair<Int, Int>, Char>, size: Int) : Int {
-        var current = Pair(col,row)
-        var totalTrees = 0
+        val path = (row..size step row).map { i -> Pair((col * (i/row)).rem(31), i) }
+        return path.map { p -> println(p); isTree(p.first, p.second, data) }.sum()
+    }
 
-        do {
-            if(data[current] == '#')
-                totalTrees += 1
-
-            current = Pair((current.first + col).rem(31), (current.second + row))
-
-        } while(current.second < size)
-
-        return totalTrees
+    private fun isTree(col: Int, row: Int, data: Map<Pair<Int, Int>, Char>): Int {
+        return if (data[Pair(col,row)] == '#') 1 else 0
     }
 }
