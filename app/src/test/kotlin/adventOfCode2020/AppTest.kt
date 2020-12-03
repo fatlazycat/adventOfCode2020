@@ -73,4 +73,38 @@ class AppTest {
 
         return (password[low] == letter && password[high] != letter) || (password[low] != letter && password[high] == letter)
     }
+
+    @Test fun testDay3() {
+        val data: Map<Pair<Int, Int>, Char> = TestData.day3.mapIndexed{ rowIndex, row -> row.mapIndexed{ colIndex, cell -> Pair(Pair(colIndex, rowIndex), cell)}}.flatten().toMap()
+        val beyondRow = TestData.day3.size
+
+        assert(numTrees(3,1, data, beyondRow) == 268)
+    }
+
+    @Test fun testDay3PartTwo() {
+        val data: Map<Pair<Int, Int>, Char> = TestData.day3.mapIndexed{ rowIndex, row -> row.mapIndexed{ colIndex, cell -> Pair(Pair(colIndex, rowIndex), cell)}}.flatten().toMap()
+        val beyondRow = TestData.day3.size
+        val v1 = numTrees(1,1, data, beyondRow).toLong()
+        val v2 = numTrees(3,1, data, beyondRow).toLong()
+        val v3 = numTrees(5,1, data, beyondRow).toLong()
+        val v4 = numTrees(7,1, data, beyondRow).toLong()
+        val v5 = numTrees(1,2, data, beyondRow).toLong()
+
+        assert(v1 * v2 * v3 * v4 * v5 == 3093068400)
+    }
+
+    private fun numTrees(col: Int, row: Int, data: Map<Pair<Int, Int>, Char>, size: Int) : Int {
+        var current = Pair(col,row)
+        var totalTrees = 0
+
+        do {
+            if(data[current] == '#')
+                totalTrees += 1
+
+            current = Pair((current.first + col).rem(31), (current.second + row))
+
+        } while(current.second < size)
+
+        return totalTrees
+    }
 }
