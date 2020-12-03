@@ -105,7 +105,5 @@ class AppTest {
         return path.map { p -> println(p); isTree(p.first, p.second, data) }.sum()
     }
 
-    private fun isTree(col: Int, row: Int, data: Map<Pair<Int, Int>, Char>): Int {
-        return if (data[Pair(col,row)] == '#') 1 else 0
-    }
+    private fun isTree(col: Int, row: Int, data: Map<Pair<Int, Int>, Char>) = if (data[Pair(col,row)] == '#') 1 else 0
 }
