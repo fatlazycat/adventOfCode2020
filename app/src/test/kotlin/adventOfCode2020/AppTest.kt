@@ -102,7 +102,7 @@ class AppTest {
 
     private fun numTrees(col: Int, row: Int, data: Map<Pair<Int, Int>, Char>, size: Int) : Int {
         val path = (row..size step row).map { i -> Pair((col * (i/row)).rem(31), i) }
-        return path.map { p -> println(p); isTree(p.first, p.second, data) }.sum()
+        return path.map { p -> isTree(p.first, p.second, data) }.sum()
     }
 
     private fun isTree(col: Int, row: Int, data: Map<Pair<Int, Int>, Char>) = if (data[Pair(col,row)] == '#') 1 else 0
