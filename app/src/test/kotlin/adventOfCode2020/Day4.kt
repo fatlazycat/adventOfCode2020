@@ -24,62 +24,25 @@ class Day4 {
         val number = mapOfData.map { entry -> isPassportPresent(entry) }.map { i -> if (i) 1 else 0 }.sum()
         assert(number == 202)
 
-        val number2 = mapOfData.map { entry -> isPassportValid(entry) }.map { i -> if (i) 1 else 0 }.sum()
+        val number2 = mapOfData.map { entry -> isPassportPresent(entry) && isPassportValid(entry) }.map { i -> if (i) 1 else 0 }.sum()
         assert(number2 == 137)
     }
 
+    private val keysWithCid = setOf<String>("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid")
+    private val keysWithoutCid = setOf<String>("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid")
+
     private fun isPassportPresent(passport: Map<String, String>) : Boolean {
-        when (passport.keys.size) {
-            8 -> {
-                return passport.containsKey("byr") &&
-                        passport.containsKey("iyr") &&
-                        passport.containsKey("eyr") &&
-                        passport.containsKey("hgt") &&
-                        passport.containsKey("hcl") &&
-                        passport.containsKey("ecl") &&
-                        passport.containsKey("pid") &&
-                        passport.containsKey("cid")
-            }
-            7 -> {
-                return passport.containsKey("byr") &&
-                        passport.containsKey("iyr") &&
-                        passport.containsKey("eyr") &&
-                        passport.containsKey("hgt") &&
-                        passport.containsKey("hcl") &&
-                        passport.containsKey("ecl") &&
-                        passport.containsKey("pid")
-            }
-            else -> {
-                return false
-            }
-        }
+        return passport.keys == keysWithCid || passport.keys == keysWithoutCid
     }
 
     private fun isPassportValid(passport: Map<String, String>) : Boolean {
-        when (passport.keys.size) {
-            8 -> {
-                return passport.containsKey("byr") && passport.getValue("byr").toInt() >= 1920 && passport.getValue("byr").toInt() <= 2002 &&
-                        passport.containsKey("iyr") && passport.getValue("iyr").toInt() >= 2010 && passport.getValue("iyr").toInt() <= 2020 &&
-                        passport.containsKey("eyr") && passport.getValue("eyr").toInt() >= 2020 && passport.getValue("eyr").toInt() <= 2030 &&
-                        passport.containsKey("hgt") && validHeight(passport.getValue("hgt")) &&
-                        passport.containsKey("hcl") && validHairColour(passport.getValue("hcl")) &&
-                        passport.containsKey("ecl") && validEyeColour(passport.getValue("ecl")) &&
-                        passport.containsKey("pid") && validPassportNumber(passport.getValue("pid")) &&
-                        passport.containsKey("cid")
-            }
-            7 -> {
-                return passport.containsKey("byr") && passport.getValue("byr").toInt() >= 1920 && passport.getValue("byr").toInt() <= 2002 &&
-                        passport.containsKey("iyr") && passport.getValue("iyr").toInt() >= 2010 && passport.getValue("iyr").toInt() <= 2020 &&
-                        passport.containsKey("eyr") && passport.getValue("eyr").toInt() >= 2020 && passport.getValue("eyr").toInt() <= 2030 &&
-                        passport.containsKey("hgt") && validHeight(passport.getValue("hgt")) &&
-                        passport.containsKey("hcl") && validHairColour(passport.getValue("hcl")) &&
-                        passport.containsKey("ecl") && validEyeColour(passport.getValue("ecl")) &&
-                        passport.containsKey("pid") && validPassportNumber(passport.getValue("pid"))
-            }
-            else -> {
-                return false
-            }
-        }
+        return passport.getValue("byr").toInt() in 1920..2002 &&
+                passport.getValue("iyr").toInt() in 2010..2020 &&
+                passport.getValue("eyr").toInt() in 2020..2030 &&
+                validHeight(passport.getValue("hgt")) &&
+                validHairColour(passport.getValue("hcl")) &&
+                validEyeColour(passport.getValue("ecl")) &&
+                validPassportNumber(passport.getValue("pid"))
     }
 
     private fun validPassportNumber(pid: String): Boolean {
