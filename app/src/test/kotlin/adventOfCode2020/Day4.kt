@@ -21,15 +21,15 @@ class Day4 {
             }
         }
 
-        val number = mapOfData.map { entry -> isPassportPresent(entry) }.map { i -> if (i) 1 else 0 }.sum()
+        val number = mapOfData.map { e -> isPassportPresent(e) }.map { i -> if (i) 1 else 0 }.sum()
         assert(number == 202)
 
-        val number2 = mapOfData.map { entry -> isPassportPresent(entry) && isPassportValid(entry) }.map { i -> if (i) 1 else 0 }.sum()
+        val number2 = mapOfData.map { e -> isPassportPresent(e) && isPassportValid(e) }.map { i -> if (i) 1 else 0 }.sum()
         assert(number2 == 137)
     }
 
-    private val keysWithCid = setOf<String>("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid")
-    private val keysWithoutCid = setOf<String>("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid")
+    private val keysWithoutCid = setOf("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid")
+    private val keysWithCid = keysWithoutCid + "cid"
 
     private fun isPassportPresent(passport: Map<String, String>) : Boolean {
         return passport.keys == keysWithCid || passport.keys == keysWithoutCid
