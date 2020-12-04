@@ -4,12 +4,14 @@ import org.junit.Test
 
 class Day2 {
     @Test fun testDayTwo() {
-        val passing = TestData.day2.filter { s -> passwordMatch(s.split(" ")) }
+        val testData = getFileAsListOfLines("/day2")
+        val passing = testData.filter { s -> passwordMatch(s.split(" ")) }
         assert(passing.size == 378)
     }
 
     @Test fun testDayTwoPartTwo() {
-        val passing = TestData.day2.filter { s -> passwordMatchPartTwo(s.split(" ")) }
+        val testData = getFileAsListOfLines("/day2")
+        val passing = testData.filter { s -> passwordMatchPartTwo(s.split(" ")) }
         assert(passing.size == 280)
     }
 
