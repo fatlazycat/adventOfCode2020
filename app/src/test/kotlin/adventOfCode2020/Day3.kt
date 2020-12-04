@@ -7,15 +7,17 @@ import kotlin.test.Test
 
 class Day3 {
     @Test fun testDay3() {
-        val data: Map<Pair<Int, Int>, Char> = TestData.day3.mapIndexed{ rowIndex, row -> row.mapIndexed{ colIndex, cell -> Pair(Pair(colIndex, rowIndex), cell)}}.flatten().toMap()
-        val beyondRow = TestData.day3.size
+        val testData = getFileAsListOfLines("/day3")
+        val data: Map<Pair<Int, Int>, Char> = testData.mapIndexed{ rowIndex, row -> row.mapIndexed{ colIndex, cell -> Pair(Pair(colIndex, rowIndex), cell)}}.flatten().toMap()
+        val beyondRow = testData.size
 
         assert(numTrees(3,1, data, beyondRow) == 268)
     }
 
     @Test fun testDay3PartTwo() {
-        val data: Map<Pair<Int, Int>, Char> = TestData.day3.mapIndexed{ rowIndex, row -> row.mapIndexed{ colIndex, cell -> Pair(Pair(colIndex, rowIndex), cell)}}.flatten().toMap()
-        val beyondRow = TestData.day3.size
+        val testData = getFileAsListOfLines("/day3")
+        val data: Map<Pair<Int, Int>, Char> = testData.mapIndexed{ rowIndex, row -> row.mapIndexed{ colIndex, cell -> Pair(Pair(colIndex, rowIndex), cell)}}.flatten().toMap()
+        val beyondRow = testData.size
         val v1 = numTrees(1,1, data, beyondRow).toLong()
         val v2 = numTrees(3,1, data, beyondRow).toLong()
         val v3 = numTrees(5,1, data, beyondRow).toLong()
