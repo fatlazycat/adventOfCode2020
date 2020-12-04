@@ -4,13 +4,15 @@ import org.junit.Test
 
 class Day1 {
     @Test fun testDayOne() {
-        val lessThan2020 = TestData.day1.filter { it < 2020 }
+        val testData = getFileAsListOfLines("/day1").map{ it.toInt() }
+        val lessThan2020 = testData.filter { it < 2020 }
         val matches = matchesd1p1(lessThan2020)
         assert(matches == listOf(Pair(321, 1699), Pair(1699, 321)))
     }
 
     @Test fun testDayOnePartTwo() {
-        val lessThan2020 = TestData.day1.filter { it < 2020 }
+        val testData = getFileAsListOfLines("/day1").map{ it.toInt() }
+        val lessThan2020 = testData.filter { it < 2020 }
         val result = triples(lessThan2020)
         result?.let { t -> assert(t.first * t.second * t.third == 257778836) }
     }
