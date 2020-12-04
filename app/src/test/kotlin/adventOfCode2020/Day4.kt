@@ -5,27 +5,24 @@ import kotlin.test.Test
 class Day4 {
     @Test fun testDay4() {
         val testData: List<String> = getFileAsListOfLines("/day4")
-        var mapOfData: MutableList<Map<String, String>> = mutableListOf()
-        var entry: MutableMap<String,String> = mutableMapOf()
+        val splitPoints = testData.mapIndexed{ index, item -> if (item.isNullOrEmpty()) index else -1 }.filter { it != -1 }
+        val passportEntries =
+            (listOf(-1)  + splitPoints + testData.size)
+                .windowed(2, 1)
+                .map { (start, end) -> testData.subList(start + 1, end) }
+                .map { i -> i.map { j -> j.split(" ") }.flatten() }
+                .map { i -> i.map{ j -> stringToEntry(j) }.toMap() }
 
-        for(row in testData) {
-            if(row.isBlank()) {
-                mapOfData.add(entry)
-                entry = mutableMapOf()
-            } else {
-                val items = row.split(" ")
-                for(i in items) {
-                    val mapEntry = i.split(":")
-                    entry[mapEntry[0]] = mapEntry[1]
-                }
-            }
-        }
-
-        val number = mapOfData.map { e -> isPassportPresent(e) }.map { i -> if (i) 1 else 0 }.sum()
+        val number = passportEntries.map { e -> isPassportPresent(e) }.map { i -> if (i) 1 else 0 }.sum()
         assert(number == 202)
 
-        val number2 = mapOfData.map { e -> isPassportPresent(e) && isPassportValid(e) }.map { i -> if (i) 1 else 0 }.sum()
+        val number2 = passportEntries.map { e -> isPassportPresent(e) && isPassportValid(e) }.map { i -> if (i) 1 else 0 }.sum()
         assert(number2 == 137)
+    }
+
+    private fun stringToEntry(s: String) : Pair<String, String> {
+        val sp = s.split(":")
+        return sp[0] to sp[1]
     }
 
     private val keysWithoutCid = setOf("byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid")
