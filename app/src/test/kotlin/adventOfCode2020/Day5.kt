@@ -13,39 +13,39 @@ class Day5 {
         assert(seatId("BBFFBBFRLL") == 820)
         assert(seatId("FBFBBFFRLR") == 357)
 
-      assert(seatId("BFFFBBFRRR") == seatId2("BFFFBBFRRR"))
-      assert(seatId("FFFBBBFRRR") == seatId2("FFFBBBFRRR"))
-      assert(seatId("BBFFBBFRLL") == seatId2("BBFFBBFRLL"))
-      assert(seatId("FBFBBFFRLR") == seatId2("FBFBBFFRLR"))
+        assert(seatId("BFFFBBFRRR") == seatId2("BFFFBBFRRR"))
+        assert(seatId("FFFBBBFRRR") == seatId2("FFFBBBFRRR"))
+        assert(seatId("BBFFBBFRLL") == seatId2("BBFFBBFRLL"))
+        assert(seatId("FBFBBFFRLR") == seatId2("FBFBBFFRLR"))
 
         val seatIds = testData.map { seatId(it) }
         val maxSeatId = seatIds.max()
         assert(maxSeatId == 861)
-        val remaining =  (0..861).map{ i -> if (seatIds.contains(i)) 0 else i }.filter { it != 0 }
+        val remaining = (0..861).map { i -> if (seatIds.contains(i)) 0 else i }.filter { it != 0 }
         assert(remaining.max() == 633)
     }
 
-    private fun seatId2(s: String) : Int {
-        return s.substring(0,7).map{swapChar(it)}.joinToString("").toInt(2) * 8 +
-                s.substring(7).map{swapChar(it)}.joinToString("").toInt(2)
+    private fun seatId2(s: String): Int {
+        return s.substring(0, 7).map { swapChar(it) }.joinToString("").toInt(2) * 8 +
+                s.substring(7).map { swapChar(it) }.joinToString("").toInt(2)
     }
 
     private fun swapChar(c: Char) = if (c == 'L' || c == 'F') '0' else '1'
 
     private fun seatId(s: String): Int {
-        return (s.substring(0,7).fold(Pair(0,127)) { acc, item -> seat(item, acc) }.first) * 8 +
-                s.substring(7).fold(Pair(0,7)) { acc, item -> seat(item, acc) }.first
+        return (s.substring(0, 7).fold(Pair(0, 127)) { acc, item -> seat(item, acc) }.first) * 8 +
+                s.substring(7).fold(Pair(0, 7)) { acc, item -> seat(item, acc) }.first
     }
 
     private fun seat(l: Char, p: Pair<Int, Int>): Pair<Int, Int> = if (l == 'L' || l == 'F') low(p) else high(p)
 
-    private fun low(p:Pair<Int,Int>) : Pair<Int, Int> {
-        val gap = (((p.second.toDouble()) - (p.first.toDouble()))/ 2.0).roundToInt()
+    private fun low(p: Pair<Int, Int>): Pair<Int, Int> {
+        val gap = (((p.second.toDouble()) - (p.first.toDouble())) / 2.0).roundToInt()
         return Pair(p.first, p.second - gap)
     }
 
-    private fun high(p:Pair<Int,Int>) : Pair<Int, Int> {
-        val gap = (((p.second.toDouble()) - (p.first.toDouble()))/ 2.0).roundToInt()
+    private fun high(p: Pair<Int, Int>): Pair<Int, Int> {
+        val gap = (((p.second.toDouble()) - (p.first.toDouble())) / 2.0).roundToInt()
         return Pair(p.first + gap, p.second)
     }
 }
