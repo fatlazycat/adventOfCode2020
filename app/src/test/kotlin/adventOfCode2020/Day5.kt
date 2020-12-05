@@ -13,12 +13,24 @@ class Day5 {
         assert(seatId("BBFFBBFRLL") == 820)
         assert(seatId("FBFBBFFRLR") == 357)
 
+      assert(seatId("BFFFBBFRRR") == seatId2("BFFFBBFRRR"))
+      assert(seatId("FFFBBBFRRR") == seatId2("FFFBBBFRRR"))
+      assert(seatId("BBFFBBFRLL") == seatId2("BBFFBBFRLL"))
+      assert(seatId("FBFBBFFRLR") == seatId2("FBFBBFFRLR"))
+
         val seatIds = testData.map { seatId(it) }
         val maxSeatId = seatIds.max()
         assert(maxSeatId == 861)
         val remaining =  (0..861).map{ i -> if (seatIds.contains(i)) 0 else i }.filter { it != 0 }
         assert(remaining.max() == 633)
     }
+
+    private fun seatId2(s: String) : Int {
+        return s.substring(0,7).map{swapChar(it)}.joinToString("").toInt(2) * 8 +
+                s.substring(7).map{swapChar(it)}.joinToString("").toInt(2)
+    }
+
+    private fun swapChar(c: Char) = if (c == 'L' || c == 'F') '0' else '1'
 
     private fun seatId(s: String): Int {
         return (s.substring(0,7).fold(Pair(0,127)) { acc, item -> seat(item, acc) }.first) * 8 +
