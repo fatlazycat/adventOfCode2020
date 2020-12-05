@@ -21,48 +21,19 @@ class Day5 {
     }
 
     private fun seatId(s: String): Int {
-        val fb = s.substring(0,7)
-        var rowPair = Pair(0,127)
-        var row = -1
-
-        for(i in fb) {
-            rowPair = row(i, rowPair)
-        }
-
-        row = if (fb[6] == 'F') rowPair.first else rowPair.second
-
-        val lr = s.substring(7, s.length)
-        var colPair = Pair(0,7)
-        var col = -1
-
-        for(i in lr) {
-            colPair = col(i, colPair)
-        }
-
-        col = if (lr[2] == 'L') colPair.first else colPair.second
-
-        return row * 8 + col
+        return (s.substring(0,7).fold(Pair(0,127)) { acc, item -> seat(item, acc) }.first) * 8 +
+                s.substring(7).fold(Pair(0,7)) { acc, item -> seat(item, acc) }.first
     }
 
-    private fun row(l: Char, current: Pair<Int, Int>): Pair<Int, Int> {
-        if (l == 'F') {
-            val gap = (((current.second.toDouble()) - (current.first.toDouble()))/ 2.0).roundToInt()
-            return Pair(current.first, current.second - gap)
-        }
-        else {
-            val gap = (((current.second.toDouble()) - (current.first.toDouble()))/ 2.0).roundToInt()
-            return Pair(current.first + gap, current.second)
-        }
+    private fun seat(l: Char, p: Pair<Int, Int>): Pair<Int, Int> = if (l == 'L' || l == 'F') low(p) else high(p)
+
+    private fun low(p:Pair<Int,Int>) : Pair<Int, Int> {
+        val gap = (((p.second.toDouble()) - (p.first.toDouble()))/ 2.0).roundToInt()
+        return Pair(p.first, p.second - gap)
     }
 
-    private fun col(l: Char, current: Pair<Int, Int>): Pair<Int, Int> {
-        if (l == 'L') {
-            val gap = (((current.second.toDouble()) - (current.first.toDouble()))/ 2.0).roundToInt()
-            return Pair(current.first, current.second - gap)
-        }
-        else {
-            val gap = (((current.second.toDouble()) - (current.first.toDouble()))/ 2.0).roundToInt()
-            return Pair(current.first + gap, current.second)
-        }
+    private fun high(p:Pair<Int,Int>) : Pair<Int, Int> {
+        val gap = (((p.second.toDouble()) - (p.first.toDouble()))/ 2.0).roundToInt()
+        return Pair(p.first + gap, p.second)
     }
 }
