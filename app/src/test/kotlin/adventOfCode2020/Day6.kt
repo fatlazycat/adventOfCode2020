@@ -7,14 +7,18 @@ class Day6 {
     fun testDay6() {
         val data = listOfListsByBlankLine(getFileAsListOfLines("/day6"))
 
+
+
         assert(countUnique(data) == 7110)
         assert(countUnique2(data) == 3628)
     }
 
     private fun countUnique(data: List<List<String>>) =
-        data.map { i -> i.joinToString("").toCharArray().distinct().size }.sum()
+        data.map { i -> distinctChars(i).size }.sum()
 
     private fun countUnique2(data: List<List<String>>) = data.map { i ->
-        i.drop(1).fold(i[0].toCharArray().toSet()) { acc, item -> item.toCharArray().intersect(acc) }.size
+        i.fold(distinctChars(i).toSet()) { acc, item -> item.toCharArray().intersect(acc) }.size
     }.sum()
+
+    private fun distinctChars(s: List<String>) = s.joinToString("").toCharArray().distinct()
 }
