@@ -5,13 +5,8 @@ import kotlin.test.Test
 class Day4 {
     @Test fun testDay4() {
         val testData: List<String> = getFileAsListOfLines("/day4")
-        val splitPoints = testData.mapIndexed{ index, item -> if (item.isNullOrEmpty()) index else -1 }.filter { it != -1 }
-        val passportEntries =
-            (listOf(-1)  + splitPoints + testData.size)
-                .windowed(2, 1)
-                .map { (start, end) -> testData.subList(start + 1, end) }
-                .map { i -> i.map { j -> j.split(" ") }.flatten() }
-                .map { i -> i.map{ j -> stringToEntry(j) }.toMap() }
+        val splitPoints = testData.mapIndexed{ index, item -> if (item.isNullOrEmpty()) index else -1 }.filter { it != -1 }; val passportEntries =
+            dataSet(splitPoints(testData), testData).map { i -> i.map{ j -> stringToEntry(j) }.toMap() }
 
         val number = passportEntries.map { e -> isPassportPresent(e) }.map { i -> if (i) 1 else 0 }.sum()
         assert(number == 202)

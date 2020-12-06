@@ -24,16 +24,4 @@ class Day6 {
                 i.drop(1).fold(i[0].toCharArray().toSet()) { acc, item -> item.toCharArray().intersect(acc) }.size
             }.sum()
     }
-
-    private fun splitPoints(testData: List<String>) =
-        testData.mapIndexed { index, item -> if (item.isNullOrEmpty()) index else -1 }.filter { it != -1 }
-
-    private fun dataSet(
-        splitPoints: List<Int>,
-        testData: List<String>
-    ) = (listOf(-1) + splitPoints + testData.size)
-        .windowed(2, 1)
-        .map { (start, end) -> testData.subList(start + 1, end) }
-        .map { i -> i.map { j -> j.split(" ") }.flatten() }
-
 }
