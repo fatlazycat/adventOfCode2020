@@ -13,9 +13,7 @@ class Day6 {
 
     private fun countUnique(testData: List<String>): Int {
         return dataSet(testData)
-            .map { i -> i.joinToString("") }
-            .map { i -> i.toCharArray().distinct() }
-            .map { i -> i.size }.sum()
+            .map { i -> i.joinToString("").toCharArray().distinct().size }.sum()
     }
 
     private fun countUnique2(testData: List<String>): Int {
