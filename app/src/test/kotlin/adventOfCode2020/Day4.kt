@@ -6,7 +6,7 @@ class Day4 {
     @Test fun testDay4() {
         val testData: List<String> = getFileAsListOfLines("/day4")
         val splitPoints = testData.mapIndexed{ index, item -> if (item.isNullOrEmpty()) index else -1 }.filter { it != -1 }; val passportEntries =
-            dataSet(testData).map { i -> i.map{ j -> stringToEntry(j) }.toMap() }
+            listOfListsByBlankLine(testData).map { i -> i.map{ j -> stringToEntry(j) }.toMap() }
 
         val number = passportEntries.map { e -> isPassportPresent(e) }.map { i -> if (i) 1 else 0 }.sum()
         assert(number == 202)
