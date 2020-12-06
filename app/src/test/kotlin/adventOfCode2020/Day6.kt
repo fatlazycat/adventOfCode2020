@@ -12,14 +12,14 @@ class Day6 {
     }
 
     private fun countUnique(testData: List<String>): Int {
-        return dataSet(splitPoints(testData), testData)
+        return dataSet(testData)
             .map { i -> i.joinToString("") }
             .map { i -> i.toCharArray().distinct() }
             .map { i -> i.size }.sum()
     }
 
     private fun countUnique2(testData: List<String>): Int {
-        return dataSet(splitPoints(testData), testData)
+        return dataSet(testData)
             .map { i ->
                 i.drop(1).fold(i[0].toCharArray().toSet()) { acc, item -> item.toCharArray().intersect(acc) }.size
             }.sum()
