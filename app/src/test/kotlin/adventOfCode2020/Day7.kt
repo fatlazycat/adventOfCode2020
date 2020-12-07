@@ -3,6 +3,8 @@ package adventOfCode2020
 import kotlin.test.Test
 
 class Day7 {
+    private val shinyGold = "shiny gold"
+
     @Test
     fun testDay6() {
         val data = getFileAsListOfLines("/day7")
@@ -17,7 +19,7 @@ class Day7 {
         val data = getFileAsListOfLines("/day7")
         val mapData = makeMap(data)
 
-        assert(bagCount("shiny gold", mapData) == 29547)
+        assert(bagCount(shinyGold, mapData) == 29547)
     }
 
     private fun bagCount(bag: String, mapData: Map<String, List<Pair<String, Int>>>): Int {
@@ -25,7 +27,7 @@ class Day7 {
     }
 
     private fun bagContainsGold(bag: String, mapData: Map<String, List<Pair<String, Int>>>): Boolean {
-        return mapData[bag]?.map { i -> i.first == "shiny gold" || bagContainsGold(i.first, mapData) }?.contains(true) ?: false
+        return mapData[bag]?.map { i -> i.first == shinyGold || bagContainsGold(i.first, mapData) }?.contains(true) ?: false
     }
 
     private fun makeMap(l: List<String>) : Map<String, List<Pair<String, Int>>> {
