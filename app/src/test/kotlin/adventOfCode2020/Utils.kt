@@ -1,5 +1,6 @@
 package adventOfCode2020
 
+import kotlin.math.min
 import kotlin.streams.toList
 
 fun getFileAsListOfLines(fileName: String) =
