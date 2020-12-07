@@ -43,7 +43,7 @@ class Day7 {
         val entries = parts[1].split("\\ contain\\ ".toRegex())
         val bagsStrings = entries[0].split(",\\ ".toRegex())
         val bagsWithEmpty = bagsStrings.map{ i-> Pair(i.substring(2), i[0].toString().toInt())}
-        val bags = if (bagsStrings.size == 1 && bagsWithEmpty[0] == Pair("blank", 0)) listOf<Pair<String, Int>>() else bagsWithEmpty
+        val bags = if (bagsWithEmpty.size == 1 && bagsWithEmpty[0] == Pair("blank", 0)) listOf<Pair<String, Int>>() else bagsWithEmpty
         val bagsProcessed = bags.map{ i -> Pair(i.first.trim(), i.second)}
 
         return parts[0].replace(" bags", "") to bagsProcessed
