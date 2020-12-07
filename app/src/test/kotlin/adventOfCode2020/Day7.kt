@@ -35,11 +35,11 @@ class Day7 {
     }
 
     private fun makeEntry(item: String) : Pair<String, List<Pair<String, Int>>> {
-        val partsNormailed = item.replace(".", "")
+        val partsNormalized = item.replace(".", "")
             .replace("no other", "0 blank")
             .replace(" bags", "")
             .replace(" bag", "")
-        val parts = partsNormailed.split(" contain ")
+        val parts = partsNormalized.split(" contain ")
         val entries = parts[1].split("\\ contain\\ ".toRegex())
         val bagsStrings = entries[0].split(",\\ ".toRegex())
         val bagsWithEmpty = bagsStrings.map{ i-> Pair(i.substring(2), i[0].toString().toInt())}
