@@ -21,8 +21,7 @@ class Day7 {
     }
 
     private fun bagCount(bag: String, mapData: Map<String, List<Pair<String, Int>>>): Int {
-        val entry = mapData[bag]
-        return entry?.map { i -> (bagCount(i.first, mapData)+1) * i.second }?.sum() ?: 0
+        return mapData[bag]?.map { i -> (bagCount(i.first, mapData)+1) * i.second }?.sum() ?: 0
     }
 
     private fun bagContainsGold(bag: String, mapData: Map<String, List<Pair<String, Int>>>): Boolean {
