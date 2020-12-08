@@ -46,9 +46,8 @@ class Day8 {
         var currentStep = 1
 
         while (!entriesDone.contains(currentStep)) {
-            if (currentStep == data.size) {
+            if (currentStep == data.size)
                 return Pair(true, acc)
-            }
             else if (currentStep > data.size || currentStep < 0)
                 return Pair(false, -1)
 
