@@ -21,6 +21,8 @@ class Day8 {
         val data = getFileAsListOfLines("/day8")
         val dataList = makeData(data)
         assert(changeJmpToNop(dataList) == Pair(true, 833))
+
+        // Note does not deal with changing a NOP to a JMP but didn't need it to solve issue
     }
 
     private fun changeJmpToNop(data: List<Pair<Op, Int>>): Pair<Boolean, Int> {
