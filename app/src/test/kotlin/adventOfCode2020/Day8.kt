@@ -9,25 +9,18 @@ enum class Op {
 }
 
 class Day8 {
-//    @Test
-//    fun day8() {
-//        val data = getFileAsListOfLines("/day8")
-//        val dataList = makeData(data)
-//        assert(followPathUntilRepeat(dataList) == Pair(false, 1654))
-//    }
-
-//    @Test
-//    fun day8test() {
-//        val data = getFileAsListOfLines("/day8test3")
-//        val dataList = makeData(data)
-//        println(followPath(dataList))
-//    }
+    @Test
+    fun day8() {
+        val data = getFileAsListOfLines("/day8")
+        val dataList = makeData(data)
+        assert(followPath(dataList) == Pair(false, 1654))
+    }
 
     @Test
     fun day8Part2() {
         val data = getFileAsListOfLines("/day8")
         val dataList = makeData(data)
-        println(changeJmpToNop(dataList))
+        assert(changeJmpToNop(dataList) == Pair(true, 833))
     }
 
     private fun changeJmpToNop(data: List<Pair<Op, Int>>): Pair<Boolean, Int> {
