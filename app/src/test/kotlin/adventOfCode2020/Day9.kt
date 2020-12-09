@@ -45,7 +45,7 @@ class Day9 {
     }
 
     private fun findInvalid(l: List<Long>, n: Int): Long? {
-        val window = l.windowed(n+1, 1).map { l ->
+        l.windowed(n+1, 1).map { l ->
             val pairs = createPairs(l.take(n))
             val sumPairs = pairsSum(pairs)
 
