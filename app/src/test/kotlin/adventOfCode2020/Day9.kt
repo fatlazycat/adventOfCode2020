@@ -45,15 +45,15 @@ class Day9 {
     }
 
     private fun findInvalid(l: List<Long>, n: Int): Long {
-        val head = l.take(n)
-        val tail = l.drop(n)
-        val pairs = createPairs(head)
-        val sumPairs = pairsSum(pairs)
+        val window = l.windowed(n+1, 1).map { l ->
+            val pairs = createPairs(l.take(n))
+            val sumPairs = pairsSum(pairs)
 
-        return if (!sumPairs.contains(tail.first()))
-            tail.first()
-        else
-            findInvalid(l.drop(1), n)
+            if (!sumPairs.contains(l.last()))
+                return l.last()
+        }
+
+        return -1L
     }
 
     private fun pairsSum(l: List<Pair<Long, Long>>): List<Long> {
