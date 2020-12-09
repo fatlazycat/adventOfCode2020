@@ -44,7 +44,7 @@ class Day9 {
         return match ?: findSum(l.drop(1), n)
     }
 
-    private fun findInvalid(l: List<Long>, n: Int): Long {
+    private fun findInvalid(l: List<Long>, n: Int): Long? {
         val window = l.windowed(n+1, 1).map { l ->
             val pairs = createPairs(l.take(n))
             val sumPairs = pairsSum(pairs)
@@ -53,7 +53,7 @@ class Day9 {
                 return l.last()
         }
 
-        return -1L
+        return null
     }
 
     private fun pairsSum(l: List<Pair<Long, Long>>): List<Long> {
