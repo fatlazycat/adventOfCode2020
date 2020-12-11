@@ -3,40 +3,7 @@ package adventOfCode2020
 import org.junit.Test
 
 class Day11 {
-    enum class Position {
-        EMPTY,
-        FULL,
-        FLOOR,
-        UNKNOWN
-    }
 
-    private fun noAdjacentSeats(p: Map.Entry<Pair<Int, Int>, Position>, seats: Map<Pair<Int, Int>, Position>): Pair<Pair<Int, Int>, Position> {
-        return if(p.value != Position.FLOOR && adjacent(p.key.first, p.key.second, seats) == 0)
-            p.key to Position.FULL
-        else
-            p.key to p.value
-    }
-
-    private fun fourOrMoreFreeAdjacentSeats(p: Map.Entry<Pair<Int, Int>, Position>, seats: Map<Pair<Int, Int>, Position>): Pair<Pair<Int, Int>, Position> {
-        return if(p.value != Position.FLOOR && adjacent(p.key.first, p.key.second, seats) >= 4)
-            p.key to Position.EMPTY
-        else
-            p.key to p.value
-    }
-
-    private fun noAdjacentSeatsVisible(p: Map.Entry<Pair<Int, Int>, Position>, seats: Map<Pair<Int, Int>, Position>): Pair<Pair<Int, Int>, Position> {
-        return if(p.value != Position.FLOOR && adjacentSee(p.key.first, p.key.second, seats) == 0)
-            p.key to Position.FULL
-        else
-            p.key to p.value
-    }
-
-    private fun fiveOrMoreFreeSeatsVisible(p: Map.Entry<Pair<Int, Int>, Position>, seats: Map<Pair<Int, Int>, Position>): Pair<Pair<Int, Int>, Position> {
-        return if(p.value != Position.FLOOR && adjacentSee(p.key.first, p.key.second, seats) >= 5)
-            p.key to Position.EMPTY
-        else
-            p.key to p.value
-    }
 
     @Test
     fun testPart1() {
@@ -88,6 +55,41 @@ class Day11 {
         val full = adjacentSee(1,1,seats)
 
         assert(full == 0)
+    }
+
+    enum class Position {
+        EMPTY,
+        FULL,
+        FLOOR,
+        UNKNOWN
+    }
+
+    private fun seatTest(
+        p: Map.Entry<Pair<Int, Int>, Position>,
+        seats: Map<Pair<Int, Int>, Position>,
+        test: (Map.Entry<Pair<Int, Int>, Position>, Map<Pair<Int, Int>, Position>) -> Boolean,
+        newType: Position
+    ): Pair<Pair<Int, Int>, Position> {
+        return if(p.value != Position.FLOOR && test(p, seats))
+            p.key to newType
+        else
+            p.key to p.value
+    }
+
+    private fun noAdjacentSeats(p: Map.Entry<Pair<Int, Int>, Position>, seats: Map<Pair<Int, Int>, Position>): Pair<Pair<Int, Int>, Position> {
+        return seatTest(p, seats, { e, s -> adjacent(e.key.first, e.key.second, s) == 0 }, Position.FULL)
+    }
+
+    private fun fourOrMoreFreeAdjacentSeats(p: Map.Entry<Pair<Int, Int>, Position>, seats: Map<Pair<Int, Int>, Position>): Pair<Pair<Int, Int>, Position> {
+        return seatTest(p, seats, { e, s -> adjacent(e.key.first, e.key.second, s) >= 4 }, Position.EMPTY)
+    }
+
+    private fun noAdjacentSeatsVisible(p: Map.Entry<Pair<Int, Int>, Position>, seats: Map<Pair<Int, Int>, Position>): Pair<Pair<Int, Int>, Position> {
+        return seatTest(p, seats, { e, s -> adjacentSee(e.key.first, e.key.second, s) == 0 }, Position.FULL)
+    }
+
+    private fun fiveOrMoreFreeSeatsVisible(p: Map.Entry<Pair<Int, Int>, Position>, seats: Map<Pair<Int, Int>, Position>): Pair<Pair<Int, Int>, Position> {
+        return seatTest(p, seats, { e, s -> adjacentSee(e.key.first, e.key.second, s) >= 5 }, Position.EMPTY)
     }
 
     private fun processToEnd(seats: Map<Pair<Int, Int>, Position>,
