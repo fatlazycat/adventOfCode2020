@@ -92,52 +92,33 @@ class Day11 {
     }
 
     private fun seatsToUnoccupied(seats: Map<Pair<Int, Int>, Position>): Map<Pair<Int, Int>, Position> {
-        return seats.keys.map { k ->
-            val currentType = seats[k]!!
-
+        return seats.entries.map { p: Map.Entry<Pair<Int, Int>, Position> ->
             when {
-                currentType != Position.FLOOR -> {
-                    val adjacent = adjacent(k.first, k.second, seats)
-                    if (adjacent >= 4)
-                        k to Position.EMPTY
-                    else
-                        k to currentType
-                }
-                else -> {
-                    k to currentType
-                }
+                p.value != Position.FLOOR && adjacent(p.key.first, p.key.second, seats) >= 4 ->
+                    p.key to Position.EMPTY
+                else ->
+                    p.key to p.value
             }
         }.toMap()
     }
 
     private fun seatsToOccupied2(seats: Map<Pair<Int, Int>, Position>): Map<Pair<Int, Int>, Position> {
-        return seats.keys.map { k ->
-            val currentType = seats[k]!!
+        return seats.entries.map { p: Map.Entry<Pair<Int, Int>, Position> ->
+            if(p.value != Position.FLOOR && adjacentSee(p.key.first, p.key.second, seats) == 0 )
+                p.key to Position.FULL
+            else
+                p.key to p.value
 
-            if (currentType != Position.FLOOR) {
-                val adjacent = adjacentSee(k.first, k.second, seats)
-                if (adjacent == 0)
-                    k to Position.FULL
-                else
-                    k to currentType
-            } else {
-                k to currentType
-            }
         }.toMap()
     }
 
     private fun seatsToUnoccupied2(seats: Map<Pair<Int, Int>, Position>): Map<Pair<Int, Int>, Position> {
-        return seats.keys.map { k ->
-            val currentType = seats[k]!!
-
-            if (currentType != Position.FLOOR) {
-                val adjacent = adjacentSee(k.first, k.second, seats)
-                if (adjacent >= 5)
-                    k to Position.EMPTY
-                else
-                    k to currentType
-            } else {
-                k to currentType
+        return seats.entries.map { p: Map.Entry<Pair<Int, Int>, Position> ->
+            when {
+                p.value != Position.FLOOR && adjacentSee(p.key.first, p.key.second, seats) >= 5 ->
+                    p.key to Position.EMPTY
+                else ->
+                    p.key to p.value
             }
         }.toMap()
     }
