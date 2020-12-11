@@ -4,7 +4,6 @@ import org.junit.Test
 
 class Day11 {
 
-
     @Test
     fun testPart1() {
         val lines: List<String> = getFileAsListOfLines("/day11")
@@ -133,34 +132,22 @@ class Day11 {
     }
 
     private fun adjacentSee(initialRow: Int, initialCol: Int, seats: Map<Pair<Int, Int>, Position>): Int {
-        var full = 0
+        return (-1..1).map { row -> (-1..1).map { col ->
+            if (row != 0 || col != 0)
+                checkInOneDirection(seats, initialRow + row, initialCol + col, row, col)
+            else
+                0
+        }.sum() }.sum()
 
-        (-1..1).map { row -> (-1..1).map { col ->
-            if (row != 0 || col != 0) {
-                var stop = false
-                var checkRow = initialRow + row
-                var checkCol = initialCol + col
+    }
 
-                do {
-
-                    when (seats[Pair(checkRow, checkCol)]) {
-                        null -> stop = true
-                        Position.FULL -> {
-                            full++
-                            stop = true
-                        }
-                        Position.EMPTY -> stop = true
-                        else -> {
-                            checkRow += row
-                            checkCol += col
-                        }
-                    }
-                }
-                while(!stop)
-            }
-        }}
-
-        return full
+    private tailrec fun checkInOneDirection(seats: Map<Pair<Int, Int>, Position>, initialRow: Int, initialCol: Int, row: Int, col: Int) : Int {
+        return when (seats[Pair(initialRow, initialCol)]) {
+            null -> 0
+            Position.FULL -> 1
+            Position.EMPTY -> 0
+            else -> checkInOneDirection(seats, initialRow + row, initialCol + col, row, col)
+        }
     }
 
     private fun seatType(c: Char): Position {
