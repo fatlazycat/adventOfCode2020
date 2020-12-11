@@ -118,10 +118,7 @@ class Day11 {
         return (initialRow - 1..initialRow + 1).map { row ->
             (initialCol - 1..initialCol + 1).map { col ->
                 if (initialRow != row || initialCol != col)
-                    when(seats[Pair(row, col)]) {
-                        Position.FULL -> 1
-                        else -> 0
-                    }
+                    checkAdjacentSeat(seats, row, col)
                 else
                     0
             }.sum()
@@ -138,6 +135,16 @@ class Day11 {
             }.sum()
         }.sum()
     }
+
+    private fun checkAdjacentSeat(
+        seats: Map<Pair<Int, Int>, Position>,
+        row: Int,
+        col: Int
+    ) = when (seats[Pair(row, col)]) {
+        Position.FULL -> 1
+        else -> 0
+    }
+
 
     private tailrec fun checkInOneDirection(seats: Map<Pair<Int, Int>, Position>, initialRow: Int, initialCol: Int, row: Int, col: Int) : Int {
         return when (seats[Pair(initialRow, initialCol)]) {
