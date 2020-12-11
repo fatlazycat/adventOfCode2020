@@ -91,23 +91,18 @@ class Day11 {
         return seatTest(p, seats, { e, s -> adjacentSee(e.key.first, e.key.second, s) >= 5 }, Position.EMPTY)
     }
 
-    private fun processToEnd(seats: Map<Pair<Int, Int>, Position>,
-                             seatTestToOccupy: (Map.Entry<Pair<Int, Int>, Position>, Map<Pair<Int, Int>, Position>) -> Pair<Pair<Int, Int>, Position> ,
-                             seatTestToEmpty: (Map.Entry<Pair<Int, Int>, Position>, Map<Pair<Int, Int>, Position>) -> Pair<Pair<Int, Int>, Position> )
+    private tailrec fun processToEnd(seats: Map<Pair<Int, Int>, Position>,
+                             seatTestToOccupy: (Map.Entry<Pair<Int, Int>, Position>, Map<Pair<Int, Int>, Position>) -> Pair<Pair<Int, Int>, Position>,
+                             seatTestToEmpty: (Map.Entry<Pair<Int, Int>, Position>, Map<Pair<Int, Int>, Position>) -> Pair<Pair<Int, Int>, Position>,
+                             firstFn: Boolean = true)
                              : Map<Pair<Int, Int>, Position> {
-        var current = seats
-        var firstFn = true
 
-        do {
-            val changedSeats = if(firstFn) seatsChange(current, seatTestToOccupy) else seatsChange(current, seatTestToEmpty)
+        val changedSeats = if(firstFn) seatsChange(seats, seatTestToOccupy) else seatsChange(seats, seatTestToEmpty)
 
-            if(changedSeats == current)
-                return current
-
-            current = changedSeats
-            firstFn = !firstFn
-
-        } while (true)
+        return if(changedSeats == seats)
+            seats
+        else
+            processToEnd(changedSeats, seatTestToOccupy, seatTestToEmpty, !firstFn)
     }
 
     private fun seatsChange(
