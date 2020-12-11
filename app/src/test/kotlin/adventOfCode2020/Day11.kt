@@ -3,11 +3,11 @@ package adventOfCode2020
 import org.junit.Test
 
 class Day11 {
-    enum class Position(val pos: Int) {
-        EMPTY(0),
-        FULL(1),
-        FLOOR(2),
-        UNKNOWN(3)
+    enum class Position {
+        EMPTY,
+        FULL,
+        FLOOR,
+        UNKNOWN
     }
 
     @Test
@@ -143,18 +143,17 @@ class Day11 {
     }
 
     private fun adjacentSee(initialRow: Int, initialCol: Int, seats: Map<Pair<Int, Int>, Position>): Int {
-        var full: Int = 0
+        var full = 0
 
         (-1..1).map { row -> (-1..1).map { col ->
             if (row != 0 || col != 0) {
-                var stop: Boolean = false
+                var stop = false
                 var checkRow = initialRow + row
                 var checkCol = initialCol + col
 
                 do {
-                    val otherSeat = seats[Pair(checkRow, checkCol)]
 
-                    when (otherSeat) {
+                    when (seats[Pair(checkRow, checkCol)]) {
                         null -> stop = true
                         Position.FULL -> {
                             full++
