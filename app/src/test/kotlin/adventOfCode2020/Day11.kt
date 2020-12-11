@@ -122,23 +122,26 @@ class Day11 {
     private fun adjacent(initialRow: Int, initialCol: Int, seats: Map<Pair<Int, Int>, Position>): Int {
         return (initialRow - 1..initialRow + 1).map { row ->
             (initialCol - 1..initialCol + 1).map { col ->
-                val otherSeat = seats[Pair(row, col)]
-                if ((row != initialRow || col != initialCol) && otherSeat != null && otherSeat == Position.FULL)
-                    1
+                if (initialRow != row || initialCol != col)
+                    when(seats[Pair(row, col)]) {
+                        Position.FULL -> 1
+                        else -> 0
+                    }
                 else
                     0
-            }
-        }.flatten().sum()
+            }.sum()
+        }.sum()
     }
 
     private fun adjacentSee(initialRow: Int, initialCol: Int, seats: Map<Pair<Int, Int>, Position>): Int {
-        return (-1..1).map { row -> (-1..1).map { col ->
-            if (row != 0 || col != 0)
-                checkInOneDirection(seats, initialRow + row, initialCol + col, row, col)
-            else
-                0
-        }.sum() }.sum()
-
+        return (-1..1).map { row ->
+            (-1..1).map { col ->
+                if (row != 0 || col != 0)
+                    checkInOneDirection(seats, initialRow + row, initialCol + col, row, col)
+                else
+                    0
+            }.sum()
+        }.sum()
     }
 
     private tailrec fun checkInOneDirection(seats: Map<Pair<Int, Int>, Position>, initialRow: Int, initialCol: Int, row: Int, col: Int) : Int {
