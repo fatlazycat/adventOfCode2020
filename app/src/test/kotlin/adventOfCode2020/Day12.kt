@@ -132,18 +132,7 @@ class Day12 {
 
     private fun mapData(l: List<String>) : List<Pair<Direction, Int>> {
         return l.map { i ->
-            val direction = when(i[0]) {
-                'N' -> Direction.NORTH
-                'S' -> Direction.SOUTH
-                'E' -> Direction.EAST
-                'W' -> Direction.WEST
-                'L' -> Direction.LEFT
-                'R' -> Direction.RIGHT
-                'F' -> Direction.FORWARD
-                else -> Direction.UNKNOWN
-            }
-
-            Pair(direction, i.substring(1).toInt())
+            Pair(Direction.fromLetter(i[0]), i.substring(1).toInt())
         }
     }
 
@@ -163,6 +152,18 @@ class Day12 {
 
         companion object {
             fun from(v: Int): Direction = Direction.values().first { it.num == v }
+            fun fromLetter(c: Char): Direction {
+                return when(c) {
+                    'N' -> NORTH
+                    'S' -> SOUTH
+                    'E' -> EAST
+                    'W' -> WEST
+                    'L' -> LEFT
+                    'R' -> RIGHT
+                    'F' -> FORWARD
+                    else -> UNKNOWN
+                }
+            }
         }
     }
 }
