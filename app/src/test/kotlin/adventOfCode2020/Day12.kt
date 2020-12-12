@@ -73,15 +73,25 @@ class Day12 {
     }
 
     private fun moveForward(current: Path, instruction: Pair<Direction, Int>): Path {
-        val newPosition = when(current.direction) {
-            Direction.NORTH -> Path(Pair(current.position.first + instruction.second, current.position.second), current.direction)
-            Direction.EAST -> Path(Pair(current.position.first, current.position.second + instruction.second), current.direction)
-            Direction.SOUTH -> Path(Pair(current.position.first - instruction.second, current.position.second), current.direction)
-            Direction.WEST -> Path(Pair(current.position.first, current.position.second - instruction.second), current.direction)
+        return when (current.direction) {
+            Direction.NORTH -> Path(
+                Pair(current.position.first + instruction.second, current.position.second),
+                current.direction
+            )
+            Direction.EAST -> Path(
+                Pair(current.position.first, current.position.second + instruction.second),
+                current.direction
+            )
+            Direction.SOUTH -> Path(
+                Pair(current.position.first - instruction.second, current.position.second),
+                current.direction
+            )
+            Direction.WEST -> Path(
+                Pair(current.position.first, current.position.second - instruction.second),
+                current.direction
+            )
             else -> throw UnsupportedOperationException()
         }
-
-        return newPosition
     }
 
     private fun moveForwardWaypoint(current: PathWaypoint, instruction: Pair<Direction, Int>): PathWaypoint {
@@ -150,7 +160,7 @@ class Day12 {
         UNKNOWN(7);
 
         companion object {
-            fun from(v: Int): Direction = Direction.values().first { it.num == v }
+            fun from(v: Int): Direction = values().first { it.num == v }
             fun fromLetter(c: Char): Direction {
                 return when(c) {
                     'N' -> NORTH
