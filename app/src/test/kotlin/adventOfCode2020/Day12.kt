@@ -33,6 +33,11 @@ class Day12 {
         assert( changeDirection(current, Pair(Direction.RIGHT, 360)) == Path(Pair(0,0), Direction.EAST))
     }
 
+    @Test
+    fun testChangeDirectionWaypoint() {
+        assert( changeDirectionWaypoint(PathWaypoint(Pair(0,0), Pair(4,10)), Pair(Direction.RIGHT, 90)) == PathWaypoint(Pair(0,0), Pair(-10,4)))
+    }
+
     private fun followPath(l: List<Pair<Direction, Int>>) : Int {
         val newPosition = l.fold(Path(Pair(0,0), Direction.EAST)){ acc, i ->
             when(i.first) {
@@ -97,16 +102,13 @@ class Day12 {
         return Path(position.position, newDirection)
     }
 
-    @Test
-    fun testChangeDirectionWaypoint() {
-        assert( changeDirectionWaypoint(PathWaypoint(Pair(0,0), Pair(4,10)), Pair(Direction.RIGHT, 90)) == PathWaypoint(Pair(0,0), Pair(-10,4)))
-    }
-
     private fun changeDirectionWaypoint(position: PathWaypoint, instruction: Pair<Direction, Int>): PathWaypoint {
         val turns = instruction.second / 90
         return when (Pair(turns, instruction.first)) {
             Pair(0, Direction.LEFT), Pair(0, Direction.RIGHT) ->
-                PathWaypoint(position.position, position.waypoint)
+                PathWaypoint(
+                    position.position,
+                    position.waypoint)
             Pair(1, Direction.LEFT), Pair(3, Direction.RIGHT) ->
                 PathWaypoint(
                     position.position,
@@ -126,10 +128,11 @@ class Day12 {
         }
     }
 
-    private fun mapData(l: List<String>) : List<Pair<Direction, Int>> {
-        return l.map { i ->
-            Pair(Direction.fromLetter(i[0]), i.substring(1).toInt())
-        }
+    private fun mapData(l: List<String>) : List<Pair<Direction, Int>> = l.map { i ->
+        Pair(
+            Direction.fromLetter(i[0]),
+            i.substring(1).toInt()
+        )
     }
 
     private data class Path(val position: Pair<Int, Int>, val direction: Direction)
