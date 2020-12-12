@@ -104,28 +104,24 @@ class Day12 {
 
     private fun changeDirectionWaypoint(position: PathWaypoint, instruction: Pair<Direction, Int>): PathWaypoint {
         val turns = instruction.second / 90
-        return  when(instruction.first) {
-            Direction.LEFT -> {
-                when (turns) {
-                    0 -> PathWaypoint(position.position, position.waypoint)
-                    1 -> PathWaypoint(position.position, Pair(position.waypoint.second, position.waypoint.first * -1))
-                    2 -> PathWaypoint(
-                        position.position,
-                        Pair(position.waypoint.first * -1, position.waypoint.second * -1)
-                    )
-                    3 -> PathWaypoint(position.position, Pair(position.waypoint.second * -1, position.waypoint.first))
-                    else -> throw UnsupportedOperationException()
-                }
-            }
-            Direction.RIGHT -> {
-                when(turns) {
-                    0 -> PathWaypoint(position.position, position.waypoint)
-                    1 -> PathWaypoint(position.position, Pair(position.waypoint.second * -1, position.waypoint.first))
-                    2 -> PathWaypoint(position.position, Pair(position.waypoint.first * -1, position.waypoint.second * -1))
-                    3 -> PathWaypoint(position.position, Pair(position.waypoint.second, position.waypoint.first * -1))
-                    else -> throw UnsupportedOperationException()
-                }
-            }
+        return when (Pair(turns, instruction.first)) {
+            Pair(0, Direction.LEFT), Pair(0, Direction.RIGHT) ->
+                PathWaypoint(position.position, position.waypoint)
+            Pair(1, Direction.LEFT), Pair(3, Direction.RIGHT) ->
+                PathWaypoint(
+                    position.position,
+                    Pair(position.waypoint.second, position.waypoint.first * -1)
+                )
+            Pair(2, Direction.LEFT), Pair(2, Direction.RIGHT) ->
+                PathWaypoint(
+                    position.position,
+                    Pair(position.waypoint.first * -1, position.waypoint.second * -1)
+                )
+            Pair(3, Direction.LEFT), Pair(1, Direction.RIGHT) ->
+                PathWaypoint(
+                    position.position,
+                    Pair(position.waypoint.second * -1, position.waypoint.first)
+                )
             else -> throw UnsupportedOperationException()
         }
     }
