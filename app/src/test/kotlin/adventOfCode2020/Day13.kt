@@ -40,7 +40,7 @@ class Day13 {
         val lines: List<String> = getFileAsListOfLines("/day13")
         val buses = lines[1].split(",").mapIndexed{ index, b -> Pair(index, b) }
             .filter { it.second != "x" }.map { p -> Pair(p.first, p.second.toLong()) }
-        val timestamp = busesLineUpOddIds(buses)
+        val timestamp = busesLineUpPrimeIds(buses)
 
         assert(timestamp == 939490236001473)
     }
@@ -50,32 +50,32 @@ class Day13 {
         val lines: List<String> = getFileAsListOfLines("/day13test")
         val buses = lines[1].split(",").mapIndexed{ index, b -> Pair(index, b) }
             .filter { it.second != "x" }.map { p -> Pair(p.first, p.second.toLong()) }
-        val timestamp = busesLineUpOddIds(buses)
+        val timestamp = busesLineUpPrimeIds(buses)
 
         assert(timestamp == 1068781L)
     }
 
-    private fun busesLineUpOddIds(l: List<Pair<Int, Long>>) : Long {
+    private fun busesLineUpPrimeIds(l: List<Pair<Int, Long>>) : Long {
         val stopDivisor = l.map { it.second }.fold(1L){acc, x -> acc * x}
         val startTime = l.map { it.second }.maxOrNull()!!.toLong()
 
         return atTimestamp(startTime, l, stopDivisor)
     }
 
-    private tailrec fun atTimestamp(time: Long, l: List<Pair<Int, Long>>, stopDivisor: Long): Long {
-        val divisor = lookForMultiplier(time, 1, l)
+    private tailrec fun atTimestamp(time: Long, l: List<Pair<Int, Long>>, lcm: Long): Long {
+        val divisor = lookForLCMWithPrimes(time, 1, l)
 
-        return if (divisor == stopDivisor)
+        return if (divisor == lcm)
             time
         else
-            atTimestamp(time + divisor, l, stopDivisor)
+            atTimestamp(time + divisor, l, lcm)
     }
 
-    private tailrec fun lookForMultiplier(time: Long, step: Long, l: List<Pair<Int, Long>>): Long {
+    private tailrec fun lookForLCMWithPrimes(time: Long, step: Long, l: List<Pair<Int, Long>>): Long {
         return when {
             l.isEmpty() -> return step
             (time + l.first().first) % l.first().second != 0L -> step
-            else -> lookForMultiplier(time, max(step, step * l.first().second), l.drop(1))
+            else -> lookForLCMWithPrimes(time, max(step, step * l.first().second), l.drop(1))
         }
     }
 
@@ -109,18 +109,18 @@ class Day13 {
     }
 
     private tailrec fun atTimestampAllNum(time: Long, l: List<Pair<Int, Long>>, stopDivisor: Long): Long {
-        val step = lookForMultiplierAllNum(time, listOf(1), l)
+        val step = lookForLCMAllNum(time, listOf(1), l)
 
         return if (step == -1L)
             time
         else
             atTimestampAllNum(time + step, l, stopDivisor)
     }
-    private tailrec fun lookForMultiplierAllNum(time: Long, matched: List<Long>, l: List<Pair<Int, Long>>): Long {
+    private tailrec fun lookForLCMAllNum(time: Long, matched: List<Long>, l: List<Pair<Int, Long>>): Long {
         return when {
             l.isEmpty() -> return -1
             (time + l.first().first) % l.first().second != 0L -> lcm(matched)
-            else -> lookForMultiplierAllNum(time, matched + l.first().second, l.drop(1))
+            else -> lookForLCMAllNum(time, matched + l.first().second, l.drop(1))
         }
     }
 
