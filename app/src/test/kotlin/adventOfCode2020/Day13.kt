@@ -45,7 +45,7 @@ class Day13 {
     }
 
     private tailrec fun atTimestamp(time: Long, l: List<Pair<Int, Long>>, stopDivisor: Long): Long {
-        val divisor = lookForMultipler(time, 1, l)
+        val divisor = lookForMultiplier(time, 1, l)
 
         return if (divisor == stopDivisor)
             time
@@ -53,11 +53,11 @@ class Day13 {
             atTimestamp(time + divisor, l, stopDivisor)
     }
 
-    private tailrec fun lookForMultipler(time: Long, step: Long, l: List<Pair<Int, Long>>): Long {
+    private tailrec fun lookForMultiplier(time: Long, step: Long, l: List<Pair<Int, Long>>): Long {
         return when {
             l.isEmpty() -> return step
             (time + l.first().first) % l.first().second != 0L -> step
-            else -> lookForMultipler(time, max(step, step * l.first().second), l.drop(1))
+            else -> lookForMultiplier(time, max(step, step * l.first().second), l.drop(1))
         }
     }
 
