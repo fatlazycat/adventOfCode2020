@@ -123,10 +123,8 @@ class Day14 {
             }
             mask.first() == 'X' -> {
                 listOf(
-                    getAllAddresses(mask.drop(1), newMask + '0') + getAllAddresses(
-                        mask.drop(1),
-                        newMask + '1'
-                    )
+                    getAllAddresses(mask.drop(1), newMask + '0'),
+                    getAllAddresses(mask.drop(1), newMask + '1')
                 ).flatten()
             }
             else -> {
