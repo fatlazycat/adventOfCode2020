@@ -139,7 +139,8 @@ class Day14 {
                 'X'
             else if (fn == '0' && b[index] == '0')
                 '0'
-            else '1'
+            else
+                '1'
         }
 
         return applied.joinToString("")
