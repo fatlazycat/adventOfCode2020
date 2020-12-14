@@ -84,7 +84,7 @@ class Day14 {
                 processData2(data.drop(1), memory, data.first().second)
             }
             else -> { // process memory
-                val memAddress = getMemoryAddress(data.first().first).toLong()
+                val memAddress = getMemoryAddress(data.first().first)
                 val memAddressAsBinary = toBinary(memAddress)
                 val memAddressAfterMask = processMemoryBinary(memAddressAsBinary, mask)
                 val allAddress = getAllAddresses(memAddressAfterMask.toList(), listOf())
@@ -173,7 +173,7 @@ class Day14 {
         assert(getMemoryAddress("mem[8]") == 8L)
     }
 
-    private val regex = """.*\[(\d*)\].*""".toRegex()
+    private val regex = """.*\[(\d*)].*""".toRegex()
 
     private fun getMemoryAddress(s: String): Long {
         regex.find(s)!!.groupValues.let { (_, s) ->
