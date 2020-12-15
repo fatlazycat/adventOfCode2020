@@ -48,15 +48,10 @@ class Day15 {
     }
 
     private fun numberLarge2020(startingNumbers: List<Int>): Int {
-        val m = startingNumbers.mapIndexed{ index, n -> Pair(n, Pair(index, -1)) }.toMap(mutableMapOf())
+        val locations = startingNumbers.mapIndexed{ index, n -> Pair(n, Pair(index, -1)) }.toMap(mutableMapOf())
+        var toFind = startingNumbers.last()
 
-        return process(startingNumbers.last(), m, startingNumbers.size)
-    }
-
-    private fun process(lastNum: Int, locations: MutableMap<Int, Pair<Int, Int>>, startingNumber: Int) : Int {
-        var toFind = lastNum
-
-        for(i in (startingNumber until 30000000)) {
+        for(i in (startingNumbers.size until 30000000)) {
             val indices = locations[toFind]
 
             when {
