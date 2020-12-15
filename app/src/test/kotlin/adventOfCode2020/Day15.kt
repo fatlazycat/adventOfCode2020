@@ -1,5 +1,8 @@
 package adventOfCode2020
 
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.toPersistentMap
+import kotlinx.collections.immutable.*
 import org.junit.Test
 
 class Day15 {
@@ -40,8 +43,7 @@ class Day15 {
         assert(numberTailRec(testData6, 2020) == 438)
         assert(numberTailRec(testData7, 2020) == 1836)
         assert(numberTailRec(data, 2020) == 959)
-        assert(numberLarge(data, 100001) == 6)
-        assert(numberTailRec(data, 100001) == 6)
+        assert(numberTailRec(data, 30000000) == 116590)
     }
 
     private fun numberSmall(startingNumbers: List<Int>, stopNum: Int): Int {
@@ -96,9 +98,9 @@ class Day15 {
         return toFind
     }
 
-    private fun numberTailRec(l: List<Int>, nth: Int) = numberFun(l.last(), l.size, nth, l.mapIndexed{ index, n -> n to Pair(index, -1) }.toMap())
+    private fun numberTailRec(l: List<Int>, nth: Int) = numberFun(l.last(), l.size, nth, l.mapIndexed{ index, n -> n to Pair(index, -1) }.toMap().toPersistentMap())
 
-    private tailrec fun numberFun(toFind: Int, current: Int, stopNum: Int, locations: Map<Int, Pair<Int, Int>>) : Int {
+    private tailrec fun numberFun(toFind: Int, current: Int, stopNum: Int, locations: PersistentMap<Int, Pair<Int, Int>>) : Int {
         if(current == stopNum)
             return toFind
         else {
