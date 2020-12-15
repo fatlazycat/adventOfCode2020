@@ -6,14 +6,14 @@ import kotlinx.collections.immutable.*
 import org.junit.Test
 
 class Day15 {
-    private val data = listOf(18,11,9,0,5,1)
-    private val testData1 = listOf(0,3,6)
-    private val testData2 = listOf(1,3,2)
-    private val testData3 = listOf(2,1,3)
-    private val testData4 = listOf(1,2,3)
-    private val testData5 = listOf(2,3,1)
-    private val testData6 = listOf(3,2,1)
-    private val testData7 = listOf(3,1,2)
+    private val data = listOf(18, 11, 9, 0, 5, 1)
+    private val testData1 = listOf(0, 3, 6)
+    private val testData2 = listOf(1, 3, 2)
+    private val testData3 = listOf(2, 1, 3)
+    private val testData4 = listOf(1, 2, 3)
+    private val testData5 = listOf(2, 3, 1)
+    private val testData6 = listOf(3, 2, 1)
+    private val testData7 = listOf(3, 1, 2)
 
     @Test
     fun testPart1() {
@@ -34,7 +34,7 @@ class Day15 {
     }
 
     @Test
-    fun testTailrecWithImmutableMap() {
+    fun testTailrecWithPersistentMap() {
         assert(numberTailRec(testData1, 2020) == 436)
         assert(numberTailRec(testData2, 2020) == 1)
         assert(numberTailRec(testData3, 2020) == 10)
@@ -47,27 +47,27 @@ class Day15 {
     }
 
     private fun numberSmall(startingNumbers: List<Int>, stopNum: Int): Int {
-        val result = (startingNumbers.size until stopNum).fold(startingNumbers){ acc, _ ->
+        val result = (startingNumbers.size until stopNum).fold(startingNumbers) { acc, _ ->
             val toFind = acc.last()
             val foundIndex = acc.lastIndexOf(toFind)
             val prevIndex = acc.dropLast(1).lastIndexOf(toFind)
 
-            if(foundIndex == -1)
+            if (foundIndex == -1)
                 acc + toFind
-            else if(foundIndex != -1 && prevIndex == -1)
+            else if (foundIndex != -1 && prevIndex == -1)
                 acc + 0
             else
-                acc + (foundIndex-prevIndex)
+                acc + (foundIndex - prevIndex)
         }
 
         return result.last()
     }
 
     private fun numberLarge(startingNumbers: List<Int>, stopNum: Int): Int {
-        val locations = startingNumbers.mapIndexed{ index, n -> Pair(n, Pair(index, -1)) }.toMap(mutableMapOf())
+        val locations = startingNumbers.mapIndexed { index, n -> Pair(n, Pair(index, -1)) }.toMap(mutableMapOf())
         var toFind = startingNumbers.last()
 
-        for(i in (startingNumbers.size until stopNum)) {
+        for (i in (startingNumbers.size until stopNum)) {
             val indices = locations[toFind]
 
             when {
@@ -98,39 +98,47 @@ class Day15 {
         return toFind
     }
 
-    private fun numberTailRec(l: List<Int>, nth: Int) = numberFun(l.last(), l.size, nth, l.mapIndexed{ index, n -> n to Pair(index, -1) }.toMap().toPersistentMap())
+    private fun numberTailRec(l: List<Int>, nth: Int) =
+        numberFun(l.last(), l.size, nth, l.mapIndexed { index, n -> n to Pair(index, -1) }.toMap().toPersistentMap())
 
-    private tailrec fun numberFun(toFind: Int, current: Int, stopNum: Int, locations: PersistentMap<Int, Pair<Int, Int>>) : Int {
-        if(current == stopNum)
+    private tailrec fun numberFun(
+        toFind: Int,
+        current: Int,
+        stopNum: Int,
+        locations: PersistentMap<Int, Pair<Int, Int>>
+    ): Int {
+        if (current == stopNum)
             return toFind
         else {
             val indices = locations[toFind]
-
-            when {
-                indices == null -> {
-                    return numberFun(toFind, current+1, stopNum, locations + (toFind to Pair(current, -1)))
+            val newNum: Int =
+                when {
+                    indices == null -> toFind
+                    indices.second == -1 -> 0
+                    else -> indices.second - indices.first
                 }
-                indices.second == -1 -> {
-                    val indicesOfZero = locations[0]
 
-                    return when {
-                        indicesOfZero == null -> numberFun(0, current+1, stopNum, locations + (0 to Pair(current, -1)))
-                        indicesOfZero.second == -1 -> numberFun(0, current+1, stopNum, locations + (0 to Pair(indicesOfZero.first, current)))
-                        else -> numberFun(0, current+1, stopNum, locations + (0 to Pair(indicesOfZero.second, current)))
-                    }
-                }
-                else -> {
-                    val foundIndex = indices.second
-                    val prevIndex = indices.first
-                    val newNum = foundIndex - prevIndex
-                    val newIndices = locations[newNum]
+            val newIndices = locations[newNum]
 
-                    return when {
-                        newIndices == null -> numberFun(newNum, current+1, stopNum, locations + (newNum to Pair(current, -1)))
-                        newIndices.second == -1 -> numberFun(newNum, current+1, stopNum, locations + (newNum to Pair(newIndices.first, current)))
-                        else -> numberFun(newNum, current+1, stopNum, locations + (newNum to Pair(newIndices.second, current)))
-                    }
-                }
+            return when {
+                newIndices == null -> numberFun(
+                    newNum,
+                    current + 1,
+                    stopNum,
+                    locations + (newNum to Pair(current, -1))
+                )
+                newIndices.second == -1 -> numberFun(
+                    newNum,
+                    current + 1,
+                    stopNum,
+                    locations + (newNum to Pair(newIndices.first, current))
+                )
+                else -> numberFun(
+                    newNum,
+                    current + 1,
+                    stopNum,
+                    locations + (newNum to Pair(newIndices.second, current))
+                )
             }
         }
     }
