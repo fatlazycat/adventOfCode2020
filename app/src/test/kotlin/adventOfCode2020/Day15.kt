@@ -57,29 +57,30 @@ class Day15 {
         var toFind = lastNum
 
         for(i in (startingNumber until 30000000)) {
-            val indicies = locations[toFind]
+            val indices = locations[toFind]
 
-            if(indicies == null) {
-                locations[toFind] = Pair(i, -1)
-            }
-            else if (indicies.second == -1) {
-                toFind = 0
-                val indiciesOfZero = locations[0]!!
-                val maxIndexOfZero = maxOf(indiciesOfZero.first, indiciesOfZero.second)
-                locations[0] = Pair(maxIndexOfZero, i)
-            }
-            else {
-                val foundIndex = indicies.second
-                val prevIndex = indicies.first
-                toFind = foundIndex - prevIndex
-                val newIndicies = locations[toFind]
-
-                if(newIndicies == null)
+            when {
+                indices == null -> {
                     locations[toFind] = Pair(i, -1)
-                else if(newIndicies.second == -1)
-                    locations[toFind] = Pair(newIndicies.first, i)
-                else
-                    locations[toFind] = Pair(newIndicies.second, i)
+                }
+                indices.second == -1 -> {
+                    toFind = 0
+                    val indicesOfZero = locations[0]!!
+                    val maxIndexOfZero = maxOf(indicesOfZero.first, indicesOfZero.second)
+                    locations[0] = Pair(maxIndexOfZero, i)
+                }
+                else -> {
+                    val foundIndex = indices.second
+                    val prevIndex = indices.first
+                    toFind = foundIndex - prevIndex
+                    val newIndices = locations[toFind]
+
+                    when {
+                        newIndices == null -> locations[toFind] = Pair(i, -1)
+                        newIndices.second == -1 -> locations[toFind] = Pair(newIndices.first, i)
+                        else -> locations[toFind] = Pair(newIndices.second, i)
+                    }
+                }
             }
         }
 
