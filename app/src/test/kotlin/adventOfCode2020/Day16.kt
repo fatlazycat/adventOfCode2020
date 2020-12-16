@@ -1,6 +1,7 @@
 package adventOfCode2020
 
 import org.junit.Test
+import kotlinx.collections.immutable.*
 
 class Day16 {
 
@@ -20,29 +21,24 @@ class Day16 {
         val validNearby = data.third.filter { isEntryValid(it, data.first) }
         val possibleEntries = mapNumbersToPossibleSolution(data.first, validNearby)
         val fieldNumbers = processPossibleEntries(possibleEntries, data.first)
-        val answer = processKnownData(fieldNumbers)
-        val convertedAnswer = answer.entries.map{ p -> p.key to p.value.first() }
-        val departures = convertedAnswer.filter { p -> p.second.startsWith("departure") }
-        val total = departures.fold(1L){ acc, i -> acc * data.second[i.first]}
+        val fieldNumbersAsList = fieldNumbers.entries.map{ p -> Pair(p.value.toPersistentList(), p.key) }.sortedBy { it.first.count() }
+        val lookupData = processKnownData(fieldNumbersAsList, listOf())
+        val departures = lookupData.filter { p -> p.first.startsWith("departure") }
+        val total = departures.fold(1L){ acc, i -> acc * data.second[i.second]}
 
         assert(total == 2587271823407)
     }
 
-    private fun processKnownData(data: MutableMap<Int, MutableList<String>>) : Map<Int, List<String>> {
-        val orderedValues = data.values.sortedBy { it.count() }
+    private tailrec fun processKnownData(data: List<Pair<PersistentList<String>, Int>>, current: List<Pair<String, Int>>): List<Pair<String, Int>> {
+        return if (data.isEmpty())
+            current
+        else {
+            val head = data.first()
+            val remainder = data.drop(1)
+            val removedEntry = remainder.map { i -> Pair(i.first.remove(head.first.first()), i.second) }
 
-        orderedValues.mapIndexed{ index, candidates ->
-            if (candidates.count() == 1) {
-                // remove this entry from all the rest
-                orderedValues.mapIndexed{ i, j ->
-                    if(i != index) {
-                        j.remove(candidates.first())
-                    }
-                }
-            }
+            processKnownData(removedEntry, current + Pair(head.first.first(), head.second))
         }
-
-        return data
     }
 
     private fun processPossibleEntries(
