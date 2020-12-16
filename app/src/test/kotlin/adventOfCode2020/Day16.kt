@@ -28,7 +28,7 @@ class Day16 {
         assert(total == 2587271823407)
     }
 
-    private fun processKnownData(data: MutableMap<Int, MutableList<String>>) : MutableMap<Int, MutableList<String>> {
+    private fun processKnownData(data: MutableMap<Int, MutableList<String>>) : Map<Int, List<String>> {
         val count: Int = data.keys.size
 
         for(c in 1..count) {
