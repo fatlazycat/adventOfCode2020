@@ -44,7 +44,7 @@ class Day16 {
     private fun processPossibleEntries(
         entries: List<List<Pair<Int, List<String>>>>,
         rules: List<Pair<String, Pair<Pair<Int, Int>, Pair<Int, Int>>>>
-    ): MutableMap<Int, MutableList<String>> {
+    ): Map<Int, List<String>> {
         val allRules = rules.map { it.first }.toSet()
         val result: MutableMap<Int, MutableList<String>> =
             allRules.mapIndexed{ index, _ -> index to allRules.toMutableList() }.toMap().toMutableMap()
