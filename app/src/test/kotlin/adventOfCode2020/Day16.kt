@@ -29,16 +29,14 @@ class Day16 {
     }
 
     private fun processKnownData(data: MutableMap<Int, MutableList<String>>) : Map<Int, List<String>> {
-        val count: Int = data.keys.size
+        val orderedValues = data.values.sortedBy { it.count() }
 
-        for(c in 1..count) {
-            data.values.mapIndexed{ index, candidates ->
-                if (candidates.count() == 1) {
-                    // remove this entry from all the rest
-                    data.values.mapIndexed{ i, j ->
-                        if(i != index) {
-                            j.remove(candidates.first())
-                        }
+        orderedValues.mapIndexed{ index, candidates ->
+            if (candidates.count() == 1) {
+                // remove this entry from all the rest
+                orderedValues.mapIndexed{ i, j ->
+                    if(i != index) {
+                        j.remove(candidates.first())
                     }
                 }
             }
