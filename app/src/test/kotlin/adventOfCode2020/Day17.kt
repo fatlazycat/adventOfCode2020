@@ -20,14 +20,28 @@ class Day17 {
     fun testPart1() {
         val grid = processData(data)
         val finalGrid = process(grid, 6)
-        println(finalGrid.keys.size)
+        assert(finalGrid.keys.size == 230)
+    }
+
+    @Test
+    fun testPart1TestData() {
+        val grid = processData(testData)
+        val finalGrid = process(grid, 6)
+        assert(finalGrid.keys.size == 112)
     }
 
     @Test
     fun testPart2() {
         val grid = processDataHyper(data)
         val finalGrid = processHyper(grid, 6)
-        println(finalGrid.keys.size)
+        assert(finalGrid.keys.size == 1600)
+    }
+
+    @Test
+    fun testPart2TestData() {
+        val grid = processDataHyper(testData)
+        val finalGrid = processHyper(grid, 6)
+        assert(finalGrid.keys.size == 848)
     }
 
     private tailrec fun process(states: Map<Point, Boolean>, tries: Int): Map<Point, Boolean> {
