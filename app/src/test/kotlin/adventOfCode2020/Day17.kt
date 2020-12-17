@@ -44,7 +44,7 @@ class Day17 {
         assert(finalGrid.keys.size == 848)
     }
 
-    private fun process(states: Map<Point, Boolean>, tries: Int, numDimensions: Int): Map<Point, Boolean> {
+    private tailrec fun process(states: Map<Point, Boolean>, tries: Int, numDimensions: Int): Map<Point, Boolean> {
         return if (tries == 0) {
             states
         } else {
