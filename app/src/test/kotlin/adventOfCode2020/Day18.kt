@@ -53,7 +53,8 @@ class Day18 {
     private val plusGreaterThanMultiply = mapOf("*" to 2, "/" to 2, "+" to 3, "-" to 3, "(" to 4, ")" to 4)
 
 //    https://en.wikipedia.org/wiki/Shunting-yard_algorithm
-    
+//    Ignores left or right associativity
+
     private fun shuntingYards(tokens: List<String>, precedence: Map<String, Int>) : List<String> {
         val outputQueue: Queue<String> = LinkedList(listOf())
         val operatorStack: Stack<String> = Stack()
