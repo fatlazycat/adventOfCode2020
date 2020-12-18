@@ -69,17 +69,17 @@ fun evalEqualPrecedence(str: String): Long {
         }
 
         fun parseExpression(): Long {
-            var x = parseFactor()
+            var x = parseTerm()
             while (true) {
                 when {
-                    eat(ADD) -> x += parseFactor()
-                    eat(MULTIPLY) -> x *= parseFactor()
+                    eat(ADD) -> x += parseTerm()
+                    eat(MULTIPLY) -> x *= parseTerm()
                     else -> return x
                 }
             }
         }
 
-        fun parseFactor(): Long {
+        fun parseTerm(): Long {
             eatSpace()
             val x: Long
             val startPos = pos
@@ -131,17 +131,17 @@ fun evalPlusFirst(str: String): Long {
         }
 
         fun parseExpression(): Long {
-            var x = parseFactor()
+            var x = parseTerm()
             while (true) {
                 when {
-                    eat(ADD) -> x += parseFactor()
+                    eat(ADD) -> x += parseTerm()
                     eat(MULTIPLY) -> x *= parseExpression()
                     else -> return x
                 }
             }
         }
 
-        fun parseFactor(): Long {
+        fun parseTerm(): Long {
             eatSpace()
 
             val x: Long
