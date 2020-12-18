@@ -37,7 +37,7 @@ const val NINE = '9'.toInt()
 const val SPACE = ' '.toInt()
 const val LEFT = '('.toInt()
 const val RIGHT = ')'.toInt()
-const val MULT = '*'.toInt()
+const val MULTIPLY = '*'.toInt()
 const val ADD = '+'.toInt()
 
 fun evalEqualPrecedence(str: String): Long {
@@ -73,7 +73,7 @@ fun evalEqualPrecedence(str: String): Long {
             while (true) {
                 when {
                     eat(ADD) -> x += parseFactor()
-                    eat(MULT) -> x *= parseFactor()
+                    eat(MULTIPLY) -> x *= parseFactor()
                     else -> return x
                 }
             }
@@ -135,7 +135,7 @@ fun evalPlusFirst(str: String): Long {
             while (true) {
                 when {
                     eat(ADD) -> x += parseFactor()
-                    eat(MULT) -> x *= parseExpression()
+                    eat(MULTIPLY) -> x *= parseExpression()
                     else -> return x
                 }
             }
