@@ -29,7 +29,151 @@ class Day19 {
         assert(messages.map { expandedRules.contains(it) }.filter { it }.count() == 2)
     }
 
-    private fun expandRules(ruleIndex: Int, rules: Map<Int, Rule>) : List<String> {
+//    @Test
+//    fun testPart2() {
+//        val initialRules = processRules(getFileAsListOfLines("/day19rules"))
+//
+//        // alter rules
+//        val rules = initialRules.toMutableMap()
+////        rules[8] = Rule(0, c = '8')
+////        rules[11] = Rule(0, c = '?')
+////        val ex = expandRules(0, rules)
+//        rules[8] = Rule(2, left = listOf(42), right = listOf(42, 8))
+//        rules[11] = Rule(2, left = listOf(42, 31), right = listOf(42, 11, 31))
+//
+//        val messages: List<String> = getFileAsListOfLines("/day19messages")
+//        val rules42 = expandRules(42, rules)
+//        val rules31 = expandRules(31, rules)
+//
+//        val notMatching = messages.map { m ->
+//            if (!messageMatches(rules42, rules31, m)) {
+//                m
+//            }
+//            else {
+//                null
+//            }
+//        }.filterNotNull()
+//
+//        println(messages.map { messageMatches(rules42, rules31, it) }.filter { it }.count())
+////        assert(messages.map { messageMatches(rules42, rules31, it) }.filter { it }.count() == 12)
+//    }
+
+    @Test
+    fun testPart2() {
+        val initialRules = processRules(getFileAsListOfLines("/day19rules"))
+
+        // alter rules
+        val rules = initialRules.toMutableMap()
+//        rules[8] = Rule(0, c = '8')
+//        rules[11] = Rule(0, c = '?')
+//        val ex = expandRules(0, rules)
+        rules[8] = Rule(2, left = listOf(42), right = listOf(42, 8))
+        rules[11] = Rule(2, left = listOf(42, 31), right = listOf(42, 11, 31))
+
+        val messages: List<String> = getFileAsListOfLines("/day19messages")
+        val rules42 = expandRules(42, rules)
+        val rules31 = expandRules(31, rules)
+
+//        val matches = rules42.toSet().intersect(rules31.toSet())
+
+        println(messages.map { messageMatches2(rules42, rules31, it) }.filter { it }.count())
+//        assert(messages.map { messageMatches(rules42, rules31, it) }.filter { it }.count() == 12)
+    }
+
+    @Test
+    fun testPart2test() {
+        val initialRules = processRules(getFileAsListOfLines("/day19rulesTest2"))
+
+        // alter rules
+        val rules = initialRules.toMutableMap()
+        rules[8] = Rule(2, left = listOf(42), right = listOf(42, 8))
+        rules[11] = Rule(2, left = listOf(42, 31), right = listOf(42, 11, 31))
+
+        val messages: List<String> = getFileAsListOfLines("/day19messagesTest2")
+        val rules42 = expandRules(42, rules)
+        val rules31 = expandRules(31, rules)
+
+//        val matches = rules42.toSet().intersect(rules31.toSet())
+
+        assert(messageMatches2(rules42, rules31, "bbabbbbaabaabba"))
+        assert(!messageMatches2(rules42, rules31, "abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa"))
+
+        assert(messages.map { messageMatches2(rules42, rules31, it) }.filter { it }.count() == 12)
+    }
+
+//    private fun messageMatches(rule42: List<String>, rule31: List<String>, message: String): Boolean {
+//        val matchesOf42 = portionThatMatches42(rule42, message, "", 0)
+//
+//        return if(matchesOf42.second >= 2) {
+//            val remainingMessage = message.substring(matchesOf42.first.length)
+//            val matchesOf31 = portionThatMatches31(rule31, remainingMessage, "", 0)
+//
+//            if(matchesOf31.second >= 1) {
+//                matchesOf31.first.length == remainingMessage.length
+//            } else {
+//                false
+//            }
+//        } else {
+//            false
+//        }
+//    }
+
+    private fun messageMatches2(rule42: List<String>, rule31: List<String>, message: String): Boolean {
+        val matchesOf31 = endPortionThatMatches31(rule31, message, "", 0)
+        val matchesOf42 = portionThatMatches42(rule42, message, "", 0)
+
+        return matchesOf31.second > 0 && matchesOf42.second > 0 && (matchesOf42.second - matchesOf31.second) >= 1
+    }
+
+    private fun portionThatMatches42(rule42: List<String>, message: String, current: String, matches: Int): Pair<String, Int> {
+        val match42 = rule42.find { message.startsWith(it) }
+
+        return when {
+            match42 == null -> {
+                Pair(current, matches)
+            }
+            match42.length == message.length -> {
+                Pair(current + match42, matches+1)
+            }
+            else -> {
+                portionThatMatches42(rule42, message.substring(match42.length), current + match42, matches+1)
+            }
+        }
+    }
+
+//    private fun portionThatMatches31(rule31: List<String>, message: String, current: String, matches: Int): Pair<String, Int> {
+//        val match31 = rule31.find { message.startsWith(it) }
+//
+//        return when {
+//            match31 == null -> {
+//                Pair(current, matches)
+//            }
+//            match31.length == message.length -> {
+//                Pair(current + match31, matches+1)
+//            }
+//            else -> {
+//                portionThatMatches31(rule31, message.substring(match31.length), current + match31, matches+1)
+//            }
+//        }
+//    }
+
+    private fun endPortionThatMatches31(rule31: List<String>, message: String, current: String, matches: Int): Pair<String, Int> {
+        val match31 = rule31.find { message.endsWith(it) }
+
+        return when {
+            match31 == null -> {
+                Pair(current, matches)
+            }
+            match31.length == message.length -> {
+                Pair(match31 + current, matches+1)
+            }
+            else -> {
+                endPortionThatMatches31(rule31, message.substring(0, message.length-match31.length), match31 + current, matches+1)
+            }
+        }
+    }
+
+    private fun expandRules(ruleIndex: Int, rules: Map<Int, Rule>): List<String> {
         val rule = rules[ruleIndex]!!
 
         return when (rule.type) {
@@ -59,15 +203,15 @@ class Day19 {
     }
 
     private fun allPossibleString(l: List<List<String>>): List<String> {
-        return if(l.size == 1)
+        return if (l.size == 1)
             l[0]
         else {
             val first = l.first()
             val result = first.map { firstPart ->
-               allPossibleString(l.drop(1)).map { nextPart ->
-                   val combined = firstPart + nextPart
-                   combined
-               }
+                allPossibleString(l.drop(1)).map { nextPart ->
+                    val combined = firstPart + nextPart
+                    combined
+                }
             }.flatten()
 
             result
