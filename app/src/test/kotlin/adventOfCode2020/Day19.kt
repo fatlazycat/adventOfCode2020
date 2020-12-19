@@ -4,7 +4,6 @@ import org.junit.Test
 import java.lang.UnsupportedOperationException
 
 class Day19 {
-
     @Test
     fun testPart1() {
         val rules = processRules(getFileAsListOfLines("/day19rules"))
@@ -28,7 +27,6 @@ class Day19 {
 
         assert(messages.map { expandedRules.contains(it) }.filter { it }.count() == 2)
     }
-
 
     @Test
     fun testPart2() {
