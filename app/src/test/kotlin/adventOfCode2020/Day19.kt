@@ -11,7 +11,7 @@ class Day19 {
         val messages: List<String> = getFileAsListOfLines("/day19messages")
         val expandedRules = expandRules(0, rules)
 
-        println(messages.map { expandedRules.contains(it) }.filter { it }.count())
+        assert(messages.map { expandedRules.contains(it) }.filter { it }.count() == 192)
     }
 
     @Test
@@ -25,6 +25,8 @@ class Day19 {
         assert(expandedRules.contains(messages[2]))
         assert(!expandedRules.contains(messages[3]))
         assert(!expandedRules.contains(messages[4]))
+
+        assert(messages.map { expandedRules.contains(it) }.filter { it }.count() == 2)
     }
 
     private fun expandRules(ruleIndex: Int, rules: Map<Int, Rule>) : List<String> {
