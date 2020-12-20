@@ -15,56 +15,260 @@ class Day20 {
     fun testPart1() {
         val data = listOfListsByBlankLine(getFileAsListOfLines("/day20"))
         val grids = processIntoGrids(data)
-        val result = findPattern(grids)
+        val result = countCorners(grids)
         assert(result == 8272903687921)
     }
 
-    private fun findPattern(grids: Map<Long, Array<CharArray>>): Long {
+    @Test
+    fun testPart2test() {
+        val data = listOfListsByBlankLine(getFileAsListOfLines("/day20test"))
+        val grids = processIntoGrids(data)
+        val allPossibleGrids = getAllPossibleAnswers(grids, 3)
+        val withoutBorders = removeBorders(allPossibleGrids)
+        val combinedGrids = asOneGrid(withoutBorders, 3)
+        val allPossibleBigGrids = combinedGrids.map { m -> allGridOptions(m) }.flatten()
+        val results = allPossibleBigGrids.map { findSeaMonsters(it, 3) }.filter { it != 0 }.distinct()
+
+        assert(results.size == 1)
+        assert(results[0] == 273)
+    }
+
+    @Test
+    fun testPart2() {
+        val data = listOfListsByBlankLine(getFileAsListOfLines("/day20"))
+        val grids = processIntoGrids(data)
+        val allPossibleGrids = getAllPossibleAnswers(grids, 12)
+        val withoutBorders = removeBorders(allPossibleGrids)
+        val combinedGrids = asOneGrid(withoutBorders, 12)
+        val allPossibleBigGrids = combinedGrids.map { m -> allGridOptions(m) }.flatten()
+        val results = allPossibleBigGrids.map { findSeaMonsters(it, 12) }.filter { it != 0 }.distinct()
+
+        assert(results.size == 1)
+        assert(results[0] == 2304)
+    }
+
+    @Test
+    fun testResultGrid() {
+        val grid = getGridFromVariable(resultGrid)
+        val result = findSeaMonsters(grid, 12)
+
+        assert(result == 2304)
+    }
+
+    private fun findSeaMonsters(grid: Array<CharArray>, gridSize: Int): Int {
+        val seaMonster = getGridFromVariable(seaMonster)
+        var numSeaMonsters = 0
+        val outputGrid = grid.copyOf()
+
+        for (x in 0..grid.size - 3) {
+            for (y in 0..grid.size - 20) {
+                var found = true
+
+                for (i in 0..2) {
+                    for (j in 0..19) {
+                        if (seaMonster[i][j] == '#' && grid[x + i][y + j] != '#')
+                            found = false
+                    }
+                }
+
+                if (found) {
+                    numSeaMonsters += 1
+                    for (i in 0..2) {
+                        for (j in 0..19) {
+                            if (seaMonster[i][j] == '#')
+                                outputGrid[x + i][y + j] = 'O'
+                        }
+                    }
+                }
+            }
+        }
+
+        var count = 0
+        var monsters = 0
+
+        if (numSeaMonsters > 0) {
+            for (x in 0 until grid.size) {
+                for (y in 0 until grid.size) {
+                    if (outputGrid[x][y] == '#')
+                        count += 1
+                    else if (outputGrid[x][y] == 'O')
+                        monsters += 1
+                }
+            }
+        }
+
+        return count
+    }
+
+    private fun asOneGrid(
+        allSolutions: List<List<Pair<Long, Array<CharArray>>>>,
+        gridSize: Int
+    ): List<Array<CharArray>> {
+        val r = allSolutions.map { solution ->
+            val result = Array(8 * gridSize) { CharArray(8 * gridSize) { ' ' } }
+
+            for (x in 0 until gridSize) {
+                for (y in 0 until gridSize) {
+                    val grid = solution[(x * gridSize) + y].second
+
+                    for (i in 0..7) {
+                        for (j in 0..7) {
+                            result[(x * 8) + i][(y * 8) + j] = grid[i][j]
+                        }
+                    }
+                }
+            }
+
+            result
+        }
+
+        return r
+    }
+
+    private fun getAllPossibleAnswers(
+        grids: Map<Long, Array<CharArray>>,
+        gridSize: Int
+    ): List<List<Pair<Long, Array<CharArray>>>> {
         val corners = grids.filter { g -> matchesForGrid(g.key, g.value, grids) == 2 }
 
-        return corners.keys.fold(1){ acc, i ->
+        val r = corners.flatMap { corner ->
+            allGridOptions(corner.value).map { co ->
+                val q = traverse(corner.key, co, grids, listOf(Pair(corner.key, co)), Pair(corner.key, co), gridSize)
+                q
+            }.filter { it.size == grids.size }
+        }
+
+        return r
+    }
+
+    private fun traverse(
+        gridKey: Long,
+        grid: Array<CharArray>,
+        grids: Map<Long, Array<CharArray>>,
+        results: List<Pair<Long, Array<CharArray>>>,
+        lastFirstOrRow: Pair<Long, Array<CharArray>>,
+        gridSize: Int
+    ): List<Pair<Long, Array<CharArray>>> {
+
+        return if (results.size == grids.size) {
+            results
+        } else {
+            if (results.size % gridSize == 0) {
+                val topMatch = matchesForGridSingleTop(lastFirstOrRow.first, lastFirstOrRow.second, grids)
+
+                if (topMatch == null)
+                    results
+                else
+                    traverse(topMatch.first, topMatch.second, grids, results + topMatch, topMatch, gridSize)
+
+            } else {
+                val rightMatch = matchesForGridSingleRight(gridKey, grid, grids)
+
+                if (rightMatch == null)
+                    results
+                else
+                    traverse(rightMatch.first, rightMatch.second, grids, results + rightMatch, lastFirstOrRow, gridSize)
+            }
+        }
+    }
+
+    private fun removeBorders(allSolutions: List<List<Pair<Long, Array<CharArray>>>>): List<List<Pair<Long, Array<CharArray>>>> {
+        val r = allSolutions.map { solution ->
+            solution.map { gridPair ->
+                val grid = gridPair.second
+                val removeTopAndBottom = grid.drop(1).dropLast(1)
+                val allRemoved = removeTopAndBottom.map { ca -> ca.drop(1).dropLast(1).toCharArray() }.toTypedArray()
+
+                gridPair.first to allRemoved
+            }
+        }
+
+        return r
+    }
+
+    @Test
+    fun testRemoveBorder() {
+        val expected = getGridFromVariable(minusBorderExample)
+        val data = listOf(listOf(1L to getGridFromVariable(borderExample)))
+        val result = removeBorders(data)
+        assert(result.size == 1)
+        assert(result.first().first().second.contentDeepEquals(expected))
+    }
+
+
+    private val borderExample = """
+        ##########
+        #........#
+        #........#
+        #........#
+        #........#
+        #........#
+        #........#
+        #........#
+        #........#
+        ##########
+    """.trimIndent()
+
+    private val minusBorderExample = """
+        ........
+        ........
+        ........
+        ........
+        ........
+        ........
+        ........
+        ........
+    """.trimIndent()
+
+    private fun countCorners(grids: Map<Long, Array<CharArray>>): Long {
+        val corners = grids.filter { g -> matchesForGrid(g.key, g.value, grids) == 2 }
+
+        return corners.keys.fold(1) { acc, i ->
             acc * i
         }
     }
 
-//    private fun traverse(gridKey: Long, grid: Array<CharArray>, grids: Map<Long, Array<CharArray>>, gridSize: Int, results: List<Long>): List<Long> {
-//        return if(results.size == grids.size) {
-//            results
-//        } else {
-//            val match = matchesForGridSingle(gridKey, grid, grids)
-//
-//            if(match == null)
-//                return results
-//            else
-//                traverse(match.first, match.second, grids, gridSize, results + match.first)
-//        }
-//    }
-
     private fun matchesForGrid(gridKey: Long, grid: Array<CharArray>, grids: Map<Long, Array<CharArray>>): Int {
-        return allGridOptions(grid).map { g1 ->
-            findMatches(Side.LEFT, Side.RIGHT, gridKey, g1, grids.toList()).size +
-                    findMatches(Side.RIGHT, Side.LEFT, gridKey, g1, grids.toList()).size +
-                    findMatches(Side.TOP, Side.BOTTOM, gridKey, g1, grids.toList()).size +
-                    findMatches(Side.BOTTOM, Side.TOP, gridKey, g1, grids.toList()).size
-        }.maxOrNull()!!
+        val r = findMatches(Side.LEFT, Side.RIGHT, gridKey, grid, grids.toList()) +
+                findMatches(Side.RIGHT, Side.LEFT, gridKey, grid, grids.toList()) +
+                findMatches(Side.TOP, Side.BOTTOM, gridKey, grid, grids.toList()) +
+                findMatches(Side.BOTTOM, Side.TOP, gridKey, grid, grids.toList())
+
+        return r.distinctBy { it.first }.size
     }
 
-//    private fun matchesForGridSingle(gridKey: Long, grid: Array<CharArray>, grids: Map<Long, Array<CharArray>>): Pair<Long, Array<CharArray>>? {
-//        val r = allGridOptions(grid).map { g1 ->
-//            findMatches(Side.LEFT, Side.RIGHT, gridKey, g1, grids.toList())
-//        }.flatten()
-//
-//        if(r.size > 1) {
-//            throw UnsupportedOperationException()
-//        }
-//        else if (r.size == 1){
-//            return r[0]
-//        }
-//        else {
-//            return null
-//        }
-//
-//    }
+    private fun matchesForGridSingleRight(
+        gridKey: Long,
+        grid: Array<CharArray>,
+        grids: Map<Long, Array<CharArray>>
+    ): Pair<Long, Array<CharArray>>? {
+        val r = findMatches(Side.RIGHT, Side.LEFT, gridKey, grid, grids.toList()).distinctBy { it.first }
+
+        if (r.size > 1) {
+            throw UnsupportedOperationException()
+        } else if (r.size == 1) {
+            return r[0]
+        } else {
+            return null
+        }
+    }
+
+    private fun matchesForGridSingleTop(
+        gridKey: Long,
+        grid: Array<CharArray>,
+        grids: Map<Long, Array<CharArray>>
+    ): Pair<Long, Array<CharArray>>? {
+        val r = findMatches(Side.TOP, Side.BOTTOM, gridKey, grid, grids.toList()).distinctBy { it.first }
+
+        if (r.size > 1) {
+            throw UnsupportedOperationException()
+        } else if (r.size == 1) {
+            return r[0]
+        } else {
+            return null
+        }
+
+    }
 
     private fun findMatches(
         g1S: Side,
@@ -111,10 +315,15 @@ class Day20 {
         val gf90 = rotateGrid90DegreesCounterClockwise(gf0)
         val gf180 = rotateGrid90DegreesCounterClockwise(gf90)
         val gf270 = rotateGrid90DegreesCounterClockwise(gf180)
+        val gfv0 = flipGridInVertical(grid)
+        val gfv90 = rotateGrid90DegreesCounterClockwise(gfv0)
+        val gfv180 = rotateGrid90DegreesCounterClockwise(gfv90)
+        val gfv270 = rotateGrid90DegreesCounterClockwise(gfv180)
 
         return listOf(
             g0, g90, g180, g270,
-            gf0, gf90, gf180, gf270
+            gf0, gf90, gf180, gf270,
+            gfv0, gfv0, gfv180, gfv270
         )
     }
 
@@ -132,12 +341,17 @@ class Day20 {
         return grid.reversed().toTypedArray()
     }
 
-    private fun rotateGrid90DegreesCounterClockwise(grid: Array<CharArray>): Array<CharArray> {
-        val result = Array(10) { CharArray(10) { ' ' } }
+    private fun flipGridInVertical(grid: Array<CharArray>): Array<CharArray> {
+        return grid.map { it.reversed().toCharArray() }.toTypedArray()
+    }
 
-        for (x in 0..9) {
-            for (y in 0..9) {
-                result[y][9 - x] = grid[x][y]
+    private fun rotateGrid90DegreesCounterClockwise(grid: Array<CharArray>): Array<CharArray> {
+        val gridSize = grid.size
+        val result = Array(gridSize) { CharArray(gridSize) { ' ' } }
+
+        for (x in 0 until gridSize) {
+            for (y in 0 until gridSize) {
+                result[y][(gridSize - 1) - x] = grid[x][y]
             }
         }
 
@@ -146,21 +360,21 @@ class Day20 {
 
     @Test
     fun testFlipGrid() {
-        val sut = flipGridInHorizontal(getTestGrid(testGrid))
-        val expected = getTestGrid(flippedTestGrid)
+        val sut = flipGridInHorizontal(getGridFromVariable(testGrid))
+        val expected = getGridFromVariable(flippedTestGrid)
 
         assert(sut.contentDeepEquals(expected))
     }
 
     @Test
     fun testRotateGrid() {
-        val sut = rotateGrid90DegreesCounterClockwise(getTestGrid(testGridToRotate))
-        val expected = getTestGrid(testGridTRotated)
+        val sut = rotateGrid90DegreesCounterClockwise(getGridFromVariable(testGridToRotate))
+        val expected = getGridFromVariable(testGridRotated)
 
         assert(sut.contentDeepEquals(expected))
     }
 
-    private fun getTestGrid(s: String): Array<CharArray> {
+    private fun getGridFromVariable(s: String): Array<CharArray> {
         return s.lines().reversed().map { it.toCharArray() }.toTypedArray()
     }
 
@@ -203,7 +417,7 @@ class Day20 {
         .........#
     """.trimIndent()
 
-    private val testGridTRotated = """
+    private val testGridRotated = """
         .........#
         ..........
         ..........
@@ -214,5 +428,110 @@ class Day20 {
         ..........
         ..........
         ..........
+    """.trimIndent()
+
+    private val seaMonster = """
+    ..................#. 
+    #....##....##....###
+    .#..#..#..#..#..#...
+    """.trimIndent()
+
+    private val resultGrid = """
+         ###....#..#..#.#.....#......#.#......#.....#....#....#.#...##...........##...##.#.........##..#.
+         .##....#.....#..#.#.#.........#....####...#.........#.......##...#...##...#.#........#....#....#
+         ...#....#.#.......##.....###......#..#..#......#....#....#...#..#..#....##.......#...#.#.#......
+         ....##.#.##.#..#..........##..##.#.#.#.#..#.#..#....#...#...#..##..#.#..##.........#.#..#...#..#
+         #.#.##.#...#......#.........#....##.#.#.#...#..#...#.....#.#....##.....###...#......#...#...##..
+         #..#.....##.......#..#.......#......#.#......#.........##..#....#...##.....#....#...........##..
+         .....................#...#.......#....#.##.#...#.....##.....##..#...#.#...#.........#.#.....#.##
+         ..#...#....#..#..##..##..#....#...#.......##...##......#...#......#.#....#..#.......#.#..#.....#
+         ...##.#......#...#...#.........#...#....##..##...##..#.####..#......##..#....#.#......#...##.#.#
+         .......#.#...###....#.##..#..#...#..........#..#......##...##....###...###............#.#....#..
+         #...#...###..####..#.###....#.......#.#.#......#..#....##.#..#####.##.#.##......##...##......#..
+         .##.##..##.##.##.##.#......#.#....................#..##.#......#.#......#.......#..#..#...###...
+         ...........#..#.##....#....#...##.#.#....#.#.#..#..#...#......##.#...#...##.#..#.#....#...##....
+         ..#..#..#.#......#....#...#......##.......##.##.....#.#.#...#....#.#.#.#.#..........#...#.......
+         #..#.........#.....#..#.....#..#...#..#......#..#.#..#..#...........##..##.....###...#..........
+         ............##.#...#.........#.#..###.#.............#....#.#.....#.....#.#............#...######
+         .....#.#..##.#...#..#.#.....#.#........##.#...#....#####..#...##.#..........#.....#.#..#........
+         ..#.#..####.#..##..#.###..#..##....#.#..#..##...##..............#..##...#...........#...#.#....#
+         .....#.##.##..#.######........#.....##.###.##..#....##.#...#.....#.##......##........#.##.......
+         #.....#.#.#.#.....#.#.......#....#..#.#.....#..............#........##.#.##.#............##.#.##
+         .......##...#.#...#..#.#......##.##.#.......#.###.###....#.#...........#............#..#.#....#.
+         ###..#.#.#.#.#...#....#....#.#...#.....##................#......#..#.#...............#.......#..
+         #....#.##.###...##..#.##....###..........#..####..#...............#......#.#####..#.#......#...#
+         .#.....#....#..#.##..#..##.#......#.#####.....#..###..#.....##.#..#.#....#....###..........#####
+         ....#..#......##...##...#.....#..#..#.####.###.#..###..#..#...#...#.....#.....#........#...#....
+         ...........#.......##...##.#.#..#.##.####..#.##..#..#...#.....#.##.......##....#.......#.......#
+         ...#........##........#.#..............##..#.....##...#.#.##.##....##.#.####.#....#..#.##.##...#
+         #......##.....#.####.##..#.#.##....###.......#..#..#....##..#.##..#.##.##...........#..........#
+         ...####.##....##..#.####....#....#.....#.#.#.#...#.#.##..####......................#.....#...#.#
+         #...#..#..#..#.##..##........#..................#.#.......#..##...##.#...#.......##.....#.......
+         #.##..#.............#....#.####...#..#.....#....#...#.......#.....#.#.........#.#..#....##...#.#
+         ....#.####.#####..##......#..........#.#..#....###.#.##..#.###...#..........#.##..#....#.#....#.
+         ##....#...#.#...........#..#....#......##..##.#..#..#..#..##....##.##.......##...##.....#...#...
+         .#..####..#.....##..#...#.##............#............##..#...#.#..#..............#...#...#.###.#
+         ....#....#..##.#.#..##.....#...##..#..#.#..####.......##..#..#...#..............##.....#...#..##
+         ###...#...#..#...####...#..#..###.#............#.#...#..##......##................###..##..##...
+         ...........##.....#...##....#....#.#.............#.#.#..#....#..........#...#...##..#....##..#.#
+         .#.....##.....##......##......#.......##....##..##.#..#..#..........#.#.#..#.##.#.###....###....
+         ......#........#..#.#..........##......#....#.....##.#.#..##.#...##...#..##.#..#..#.##..#..#.#.#
+         .#......#.#.###.#.##......###.#.#...##..............###...#.#..#.#...#..#.#.......#..#.......#..
+         ..##..#..........#...###.##...#.#..#.....#..........##......##.....#...#..#..#..#..##..#....#..#
+         #.#......##.#..##.....###.........##..#..#...##..#...##.#..#..#.......##.#..#.......##..###.....
+         #..#........#.#.##..#.#......#.#.......#.#.#..#.#......#..#.....#.....#...#...##...##.#..#...#..
+         ...#..#..#.#.......##....##....##.....#.......#.#.#..##..........##......#.#...#...##.##.##.#...
+         ....#....###.........##..........#...#.#....#..#....#.......###...#....#..#..##.......##.......#
+         .....##..#..#...#...#.#...#.....##.....#..#..##........#.#...###..........#..##........#.#...#..
+         .#..#...#..#...#..................#..#....##....##....###..#....#....#.....#...#..#..##.#..#.#..
+         .#..#.###...##........................#..#.###.#..#..##.....#...........#.....###.......#...#...
+         ##.........##.....#.#......#..##........#......##..................#.........#............#...#.
+         .#.#...#.....#.#..#...#..#.#..##....#......#.....#...#.#..#..#.##........#......##.....##..#..#.
+         #.#..#.....##.#.#..#.#.#..#.........##.#....#..##...##....#...#......#..#.............#...#.#...
+         ###.#...##.#..........##..##..#..#...#.##.....##..###..###..#.##..#.###.#.......#..............#
+         .......#..#......##...#..#.#....##.#.........####..###.#..#..#..####.#.....#...#..#....#.##.....
+         ..#.......#.#.#..##...#.#..#.#.##.....#..#.....##..##..#.#.#.............#............#.#......#
+         .....#.#........#....#.#.#.####..#.##.##..........##....#...#..#...#..##.#..#.........#......#..
+         ....#.....#.....#.#...#.....#....#...#....##..#...#...................##.#........#...#.#.......
+         #.#.#....#....##....###.#.##...####.#.....#....#...###.......##.#...###.....###..#.#.........#..
+         ##.....##.#.##..#..#..#..#.##.##...#.......#.........##..#.#.#...#....#.#..#....#..#....#.......
+         ...#.#.....###...##......#...#..#.#.......##......##...##.#..#..##...#.#..#.......#.##....#.....
+         ....#....#.#...##.#..#.#....#.#........##..#.#......#..##....###......#.#..#.#.....##..#.......#
+         .##.......#....#...#.....##...##.#...#.#..#.......#####......#.#...#....#..##.....#....#.....#..
+         ##.##....#.................#.#.#.##.#.##.#.#.##.#...#..........#.#.......##......#.#..#.##....#.
+         .##..........#.....#........#.......#........##...#......#....#..........#.....##.##..#..#......
+         #..#....#.##.#...#.............##..#...#...##..#..#....#.#..#......#.##......#.#...#..........#.
+         ...#.......#....#....#.####.#.###...##....####..#..#.##...............#.#......###.#...#.##.....
+         #.................#.......#..#.##.##..##.##.........#..#...##..........#......#....#.#..#.......
+         ......#....###.#...#..####.....#....#..#.#.#.......#...###......###......#......###..##.........
+         ....##......#..####.#...#.#......####.....#.....#.##....#.#.#.........#.#..#.#......#........##.
+         ..........#...#...#.##..#.....#.#.......#...#....#....#..###...#..#........#.....#.#..........#.
+         ..#.##.....#......#..........##......###........#.....#..#.....#....#........#....#..........#.#
+         .#.#......##....#.#..###.##..#..#..##....#..##.#...###..#..##.#.....#.##....#.#..#........#...##
+         .#......###..###...###.#.####.#.#....#....#.###....#......#.##.........#...##.#....##..#...#...#
+         #.....#..#..#..#.##..##.#............#......#...#..##......#.#....##.......#.........#.#.#..#...
+         #..##....#...........#..#....##.#.#.#.#...#.#.......#..##..#.....##...##...#...##.###...#.....##
+         #..##...#..#....#................#.......###..#.....#.......#...#.####.#........#...#..#.....##.
+         ..#...........#.#.#..........#..#.#.#.#.#.#..#.##...#.#.....#.#.#....##.#.#..#.#..#..#..#...#...
+         ...#.#...#..#......#...#....#.#...##.#.#....####.##..####.######...#...#.............#.#......#.
+         ..........###..##....##....###.#.###.........####..#..#.###.###.#..............#............#...
+         #...#...#..##.##.#.##..#..#............#...#...#...#....##...##.#....#.###..#........#....##....
+         ##.......#..#.#.....###...#..#...........#####...#.#.........##...#.....#..#.#.#..#.##.....#....
+         #.....#....#.#....#........#.....#..#.#..........##.#........#....##....##.....#.....#.#........
+         .#.....#....#..#...#.........#....##.##...##...#....#....#...#...#..#.##.......#.#........##..#.
+         .#....#..##..#...#####..##....##..#.####...#...###...#.#.#....#.............#.#..........#..##..
+         .#.....##...........#..#..##.#.###.#.....##...........#....###..........##.#..#......#...##....#
+         #...#..#.........#..###........##..#......#...#..##.###.###........#........#...#..##.#...#.#...
+         .#....#.......#....####....##....#..#..#.....#....#......##.#....#.#..#......#..#...............
+         ...#.#.............#.###.....#....................##.......##....#.#.........#.........#....##..
+         ........#...#.#.....#.........#...#.#....#.........#....#..#.........#.....#.#.##....#.##.#.#..#
+         ...............###....#......#.....##...#.#...#.#...#.........##..........###...#.###.....#...#.
+         #.....#.#......#...#.#..#.........#....#..#..###.#.....#..............##...#...#....#...........
+         .##.#.###...##....###...#..##.#..#.##............##.#.......#.........#.......###.......##....#.
+         ..##.##.#..#..#..#..#..#.###............#...#.............###.......###...###..####..#.###....#.
+         #.###...#......#........#.#.....#.....#.#.##....#...#......#.#........##..##.#.#####..#...#...#.
+         ..............##..#...#..#....##.....#...#.........###.##.......#.#.##........##.#.#...#.#...#..
+         #........#.........##....#.#....#..........##..#........#.###..##.##.........#.......##...#..#..
+         #.....#.#..####.#.....#.#..#.#.#....##..#......#...#.#..####.......#.##.###.###.###..#.....#..#.
     """.trimIndent()
 }
