@@ -48,23 +48,8 @@ class Day21 {
         val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
         val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
         val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
-        var allergenCandidates = allergens.asSequence().mapNotNull { allergen ->
-            val i = ingredientsToAllergens.asSequence()
-                .filter { it.second.contains(allergen) }
-                .map { it.first - allergensNotInCommonIngredientsByAllergen }
-                .reduce { a, b -> a intersect b }
-            if (i.isEmpty()) null else allergen to i
-        }.toMap()
-
-        val result = mutableMapOf<String, String>()
-
-        while (allergenCandidates.isNotEmpty()) {
-            val exactMatch = allergenCandidates.filterValues { it.size == 1 }.mapValues { (_, s) -> s.first() }
-            result.putAll(exactMatch)
-            allergenCandidates = allergenCandidates.mapValues { (_, ingredients) ->
-                ingredients - exactMatch.values.toSet()
-            }.filterValues { it.isNotEmpty() }
-        }
+        val allergenCandidates = getAllergenCandidates(allergens, ingredientsToAllergens, allergensNotInCommonIngredientsByAllergen)
+        val result = getAllergenTranslation(allergenCandidates)
 
         val answer = result.entries.sortedBy { (a, _) -> a }.joinToString(",") { (_, i) -> i }
 
@@ -80,28 +65,39 @@ class Day21 {
         val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
         val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
         val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
-        var allergenCandidates = allergens.asSequence().mapNotNull { allergen ->
-            val i = ingredientsToAllergens.asSequence()
-                .filter { it.second.contains(allergen) }
-                .map { it.first - allergensNotInCommonIngredientsByAllergen }
-                .reduce { a, b -> a intersect b }
-            if (i.isEmpty()) null else allergen to i
-        }.toMap()
-
-        val result = mutableMapOf<String, String>()
-
-        while (allergenCandidates.isNotEmpty()) {
-            val exactMatch = allergenCandidates.filterValues { it.size == 1 }.mapValues { (_, s) -> s.first() }
-            result.putAll(exactMatch)
-            allergenCandidates = allergenCandidates.mapValues { (_, ingredients) ->
-                ingredients - exactMatch.values.toSet()
-            }.filterValues { it.isNotEmpty() }
-        }
+        val allergenCandidates = getAllergenCandidates(allergens, ingredientsToAllergens, allergensNotInCommonIngredientsByAllergen)
+        val result = getAllergenTranslation(allergenCandidates)
 
         val answer = result.entries.sortedBy { (a, _) -> a }.joinToString(",") { (_, i) -> i }
 
         println(answer == "mxmxvkd,sqjhc,fvjkl")
     }
+
+    private fun getAllergenTranslation(allergenCandidates: Map<String, Set<String>>): MutableMap<String, String> {
+        var allergenCandidates1 = allergenCandidates
+        val result = mutableMapOf<String, String>()
+
+        while (allergenCandidates1.isNotEmpty()) {
+            val exactMatch = allergenCandidates1.filterValues { it.size == 1 }.mapValues { (_, s) -> s.first() }
+            result.putAll(exactMatch)
+            allergenCandidates1 = allergenCandidates1.mapValues { (_, ingredients) ->
+                ingredients - exactMatch.values.toSet()
+            }.filterValues { it.isNotEmpty() }
+        }
+        return result
+    }
+
+    private fun getAllergenCandidates(
+        allergens: Set<String>,
+        ingredientsToAllergens: List<Pair<Set<String>, Set<String>>>,
+        allergensNotInCommonIngredientsByAllergen: Set<String>
+    ) = allergens.asSequence().mapNotNull { allergen ->
+        val i = ingredientsToAllergens.asSequence()
+            .filter { it.second.contains(allergen) }
+            .map { it.first - allergensNotInCommonIngredientsByAllergen }
+            .reduce { a, b -> a intersect b }
+        if (i.isEmpty()) null else allergen to i
+    }.toMap()
 
     private fun getCommonIngredientsByAllergen(
         allergens: Set<String>,
