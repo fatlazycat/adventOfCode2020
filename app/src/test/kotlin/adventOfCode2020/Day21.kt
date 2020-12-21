@@ -44,10 +44,9 @@ class Day21 {
         val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
         val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
 
-        val unassociatedCount = ingredientsToAllergens.map { (ingredients, _) ->
+        return ingredientsToAllergens.map { (ingredients, _) ->
             ingredients.count { it in allergensNotInCommonIngredientsByAllergen }
         }.sum()
-        return unassociatedCount
     }
 
     private fun getSortedIngredients(lines: List<String>): String {
