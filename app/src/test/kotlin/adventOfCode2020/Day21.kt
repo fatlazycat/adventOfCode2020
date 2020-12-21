@@ -7,17 +7,7 @@ class Day21 {
     @Test
     fun testPart1() {
         val lines: List<String> = getFileAsListOfLines("/day21")
-        val ingredientsToAllergens = processData(lines)
-        val ingredients = ingredientsToAllergens.flatMap { p -> p.first }.distinct().toSet()
-        val allergens = ingredientsToAllergens.flatMap { p -> p.second }.distinct().toSet()
-        val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
-
-        val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
-        val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
-
-        val unassociatedCount = ingredientsToAllergens.map { (ingredients, _) ->
-            ingredients.count { it in allergensNotInCommonIngredientsByAllergen }
-        }.sum()
+        val unassociatedCount = getCountOfNonAllergens(lines)
 
         assert(unassociatedCount == 2230)
     }
@@ -25,6 +15,28 @@ class Day21 {
     @Test
     fun testPart1test() {
         val lines: List<String> = getFileAsListOfLines("/day21test")
+        val unassociatedCount = getCountOfNonAllergens(lines)
+
+        assert(unassociatedCount == 5)
+    }
+
+    @Test
+    fun testPart2() {
+        val lines: List<String> = getFileAsListOfLines("/day21")
+        val answer = getSortedIngredients(lines)
+
+        assert(answer == "qqskn,ccvnlbp,tcm,jnqcd,qjqb,xjqd,xhzr,cjxv")
+    }
+
+    @Test
+    fun testPart2test() {
+        val lines: List<String> = getFileAsListOfLines("/day21test")
+        val answer = getSortedIngredients(lines)
+
+        println(answer == "mxmxvkd,sqjhc,fvjkl")
+    }
+
+    private fun getCountOfNonAllergens(lines: List<String>): Int {
         val ingredientsToAllergens = processData(lines)
         val ingredients = ingredientsToAllergens.flatMap { p -> p.first }.distinct().toSet()
         val allergens = ingredientsToAllergens.flatMap { p -> p.second }.distinct().toSet()
@@ -35,42 +47,21 @@ class Day21 {
         val unassociatedCount = ingredientsToAllergens.map { (ingredients, _) ->
             ingredients.count { it in allergensNotInCommonIngredientsByAllergen }
         }.sum()
-
-        assert(unassociatedCount == 5)
+        return unassociatedCount
     }
 
-    @Test
-    fun testPart2() {
-        val lines: List<String> = getFileAsListOfLines("/day21")
+    private fun getSortedIngredients(lines: List<String>): String {
         val ingredientsToAllergens = processData(lines)
         val ingredients = ingredientsToAllergens.flatMap { p -> p.first }.distinct().toSet()
         val allergens = ingredientsToAllergens.flatMap { p -> p.second }.distinct().toSet()
         val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
         val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
         val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
-        val allergenCandidates = getAllergenCandidates(allergens, ingredientsToAllergens, allergensNotInCommonIngredientsByAllergen)
+        val allergenCandidates =
+            getAllergenCandidates(allergens, ingredientsToAllergens, allergensNotInCommonIngredientsByAllergen)
         val result = getAllergenTranslation(allergenCandidates)
-
         val answer = result.entries.sortedBy { (a, _) -> a }.joinToString(",") { (_, i) -> i }
-
-        assert(answer == "qqskn,ccvnlbp,tcm,jnqcd,qjqb,xjqd,xhzr,cjxv")
-    }
-
-    @Test
-    fun testPart2test() {
-        val lines: List<String> = getFileAsListOfLines("/day21test")
-        val ingredientsToAllergens = processData(lines)
-        val ingredients = ingredientsToAllergens.flatMap { p -> p.first }.distinct().toSet()
-        val allergens = ingredientsToAllergens.flatMap { p -> p.second }.distinct().toSet()
-        val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
-        val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
-        val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
-        val allergenCandidates = getAllergenCandidates(allergens, ingredientsToAllergens, allergensNotInCommonIngredientsByAllergen)
-        val result = getAllergenTranslation(allergenCandidates)
-
-        val answer = result.entries.sortedBy { (a, _) -> a }.joinToString(",") { (_, i) -> i }
-
-        println(answer == "mxmxvkd,sqjhc,fvjkl")
+        return answer
     }
 
     private fun getAllergenTranslation(allergenCandidates: Map<String, Set<String>>): MutableMap<String, String> {
