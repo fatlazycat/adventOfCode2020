@@ -6,11 +6,14 @@ class Day21 {
 
     @Test
     fun testPart1() {
-//        val lines: List<String> = getFileAsListOfLines("/day21test")
-        val lines: List<String> = getFileAsListOfLines("/day21")
+        val lines: List<String> = getFileAsListOfLines("/day21test")
+//        val lines: List<String> = getFileAsListOfLines("/day21")
         val data = processData(lines)
         val allergensToIngredients = getAllergensToIngredients(data)
         val ingredientsToAllergens = getIngredientsToAllergens(data)
+
+
+
         val matches = findMatches(allergensToIngredients, ingredientsToAllergens)
         val allAllergens = data.toMap().values.flatten().distinct()
 
@@ -78,7 +81,17 @@ class Day21 {
         return results
     }
 
-    private fun definiteMatchFromIngredients(ingredientsToAllergens: Map<String, Map<String, Int>>): List<Pair<String, String>> {
+    private fun definiteMatchFromIngredients(
+        ingredientsToAllergens: Map<String, Map<String, Int>>,
+//        allAllergens: List<String>
+    ): List<Pair<String, String>> {
+
+//        allAllergens.map { allergen ->
+//
+//
+//        }
+//
+
         return ingredientsToAllergens.entries.map { kv ->
             val max = kv.value.maxByOrNull { it.value }
 
