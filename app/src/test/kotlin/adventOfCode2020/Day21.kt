@@ -6,152 +6,121 @@ class Day21 {
 
     @Test
     fun testPart1() {
+        val lines: List<String> = getFileAsListOfLines("/day21")
+        val ingredientsToAllergens = processData(lines)
+        val ingredients = ingredientsToAllergens.flatMap { p -> p.first }.distinct().toSet()
+        val allergens = ingredientsToAllergens.flatMap { p -> p.second }.distinct().toSet()
+        val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
+
+        val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
+        val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
+
+        val unassociatedCount = ingredientsToAllergens.map { (ingredients, _) ->
+            ingredients.count { it in allergensNotInCommonIngredientsByAllergen }
+        }.sum()
+
+        assert(unassociatedCount == 2230)
+    }
+
+    @Test
+    fun testPart1test() {
         val lines: List<String> = getFileAsListOfLines("/day21test")
-//        val lines: List<String> = getFileAsListOfLines("/day21")
-        val data = processData(lines)
-        val allergensToIngredients = getAllergensToIngredients(data)
-        val ingredientsToAllergens = getIngredientsToAllergens(data)
+        val ingredientsToAllergens = processData(lines)
+        val ingredients = ingredientsToAllergens.flatMap { p -> p.first }.distinct().toSet()
+        val allergens = ingredientsToAllergens.flatMap { p -> p.second }.distinct().toSet()
+        val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
+        val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
+        val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
 
+        val unassociatedCount = ingredientsToAllergens.map { (ingredients, _) ->
+            ingredients.count { it in allergensNotInCommonIngredientsByAllergen }
+        }.sum()
 
-
-        val matches = findMatches(allergensToIngredients, ingredientsToAllergens)
-        val allAllergens = data.toMap().values.flatten().distinct()
-
-        if(matches.size != allAllergens.size) {
-            println("match not complete")
-        }
-
-        val allIngredients = data.toMap().keys.flatten().distinct()
-        val noAllergens = allIngredients.toSet() - matches.keys
-        val allIngredientsWithDupes = data.map { it.first.toSet() }
-        val ingredientsWithNoAllergens = allIngredientsWithDupes.map { it.intersect(noAllergens)}
-        val total = ingredientsWithNoAllergens.map{ it.count() }.sum()
-
-        println(total)
+        assert(unassociatedCount == 5)
     }
 
-    private fun findMatches(
-        allergensToIngredients: Map<String, Map<String, Int>>,
-        ingredientsToAllergens: Map<String, Map<String, Int>>
-    ): Map<String, String> {
-        val ingredientsToAllergensMutable = ingredientsToAllergens.entries.map { kv ->
-            kv.key to kv.value.toMutableMap()
-        }.toList().toMap().toMutableMap()
-        val allergensToIngredientsMutable = allergensToIngredients.entries.map { kv ->
-            kv.key to kv.value.toMutableMap()
-        }.toList().toMap().toMutableMap()
-        var stop = false
-        val results = mutableMapOf<String, String>()
+    @Test
+    fun testPart2() {
+        val lines: List<String> = getFileAsListOfLines("/day21")
+        val ingredientsToAllergens = processData(lines)
+        val ingredients = ingredientsToAllergens.flatMap { p -> p.first }.distinct().toSet()
+        val allergens = ingredientsToAllergens.flatMap { p -> p.second }.distinct().toSet()
+        val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
+        val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
+        val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
+        var allergenCandidates = allergens.asSequence().mapNotNull { allergen ->
+            val i = ingredientsToAllergens.asSequence()
+                .filter { it.second.contains(allergen) }
+                .map { it.first - allergensNotInCommonIngredientsByAllergen }
+                .reduce { a, b -> a intersect b }
+            if (i.isEmpty()) null else allergen to i
+        }.toMap()
 
-        while (!stop) {
-            val definiteMatches = definiteMatchFromIngredients(ingredientsToAllergensMutable)
+        val result = mutableMapOf<String, String>()
 
-            if(definiteMatches.isNotEmpty()) {
-                for (definiteMatch in definiteMatches) {
-                    ingredientsToAllergensMutable.remove(definiteMatch.first)
-                    results[definiteMatch.first] = definiteMatch.second
-                }
-                for (definiteMatch in definiteMatches) {
-                    ingredientsToAllergensMutable.entries.map { kv ->
-                        kv.value.remove(definiteMatch.second)
-                    }
-                }
-            }
-            else {
-                stop = true
-            }
+        while (allergenCandidates.isNotEmpty()) {
+            val exactMatch = allergenCandidates.filterValues { it.size == 1 }.mapValues { (_, s) -> s.first() }
+            result.putAll(exactMatch)
+            allergenCandidates = allergenCandidates.mapValues { (_, ingredients) ->
+                ingredients - exactMatch.values.toSet()
+            }.filterValues { it.isNotEmpty() }
         }
 
-        for(r in results) {
-            allergensToIngredientsMutable.remove(r.value)
-        }
-        for (r in results) {
-            allergensToIngredientsMutable.entries.map { kv ->
-                kv.value.remove(r.key)
-            }
-        }
+        val answer = result.entries.sortedBy { (a, _) -> a }.joinToString(",") { (_, i) -> i }
 
-        for( a in allergensToIngredientsMutable.entries) {
-            val l = a.value.toList()
-
-            if(l.size == 1)
-                results[l.first().first] = a.key
-        }
-
-        return results
+        assert(answer == "qqskn,ccvnlbp,tcm,jnqcd,qjqb,xjqd,xhzr,cjxv")
     }
 
-    private fun definiteMatchFromIngredients(
-        ingredientsToAllergens: Map<String, Map<String, Int>>,
-//        allAllergens: List<String>
-    ): List<Pair<String, String>> {
+    @Test
+    fun testPart2test() {
+        val lines: List<String> = getFileAsListOfLines("/day21test")
+        val ingredientsToAllergens = processData(lines)
+        val ingredients = ingredientsToAllergens.flatMap { p -> p.first }.distinct().toSet()
+        val allergens = ingredientsToAllergens.flatMap { p -> p.second }.distinct().toSet()
+        val commonIngredientsByAllergen = getCommonIngredientsByAllergen(allergens, ingredientsToAllergens)
+        val allergensInCommonIngredientsByAllergen = commonIngredientsByAllergen.values.reduce { a, b -> a union b }
+        val allergensNotInCommonIngredientsByAllergen = ingredients - allergensInCommonIngredientsByAllergen
+        var allergenCandidates = allergens.asSequence().mapNotNull { allergen ->
+            val i = ingredientsToAllergens.asSequence()
+                .filter { it.second.contains(allergen) }
+                .map { it.first - allergensNotInCommonIngredientsByAllergen }
+                .reduce { a, b -> a intersect b }
+            if (i.isEmpty()) null else allergen to i
+        }.toMap()
 
-//        allAllergens.map { allergen ->
-//
-//
-//        }
-//
+        val result = mutableMapOf<String, String>()
 
-        return ingredientsToAllergens.entries.map { kv ->
-            val max = kv.value.maxByOrNull { it.value }
+        while (allergenCandidates.isNotEmpty()) {
+            val exactMatch = allergenCandidates.filterValues { it.size == 1 }.mapValues { (_, s) -> s.first() }
+            result.putAll(exactMatch)
+            allergenCandidates = allergenCandidates.mapValues { (_, ingredients) ->
+                ingredients - exactMatch.values.toSet()
+            }.filterValues { it.isNotEmpty() }
+        }
 
-            if(max != null) {
-                val entries = kv.value.filter { it.value == max.value }
+        val answer = result.entries.sortedBy { (a, _) -> a }.joinToString(",") { (_, i) -> i }
 
-                if (entries.size == 1 && max.value > 1)
-                    kv.key to entries.toList().first().first
-                else
-                    null
-            }
-            else {
-                null
-            }
-        }.filterNotNull()
+        println(answer == "mxmxvkd,sqjhc,fvjkl")
     }
 
-    private fun getAllergensToIngredients(list: List<Pair<List<String>, List<String>>>): Map<String, Map<String, Int>> {
-        val allergensToIngredients = list.map { p ->
-            p.second.map { a ->
-                a to p.first
-            }
-        }.flatten()
+    private fun getCommonIngredientsByAllergen(
+        allergens: Set<String>,
+        ingredientsToAllergens: List<Pair<Set<String>, Set<String>>>
+    ) = allergens.asSequence().map { allergen ->
+        allergen to ingredientsToAllergens.asSequence()
+            .filter { it.second.contains(allergen) }
+            .map { it.first }
+            .reduce { a, b -> a intersect b }
+    }.toMap()
 
-        val possible = allergensToIngredients.groupBy { it.first }
-        val listCounts = possible.map { p ->
-            p.key to p.value.map { it.second }.flatten()
-        }
-        val counts = listCounts.map { pair ->
-            pair.first to pair.second.groupingBy { it }.eachCount()
-        }
 
-        return counts.toMap()
-    }
-
-    private fun getIngredientsToAllergens(list: List<Pair<List<String>, List<String>>>): Map<String, Map<String, Int>> {
-        val ingredientsToAllergens = list.map { p ->
-            p.first.map { a ->
-                a to p.second
-            }
-        }.flatten()
-
-        val possible = ingredientsToAllergens.groupBy { it.first }
-        val listCounts = possible.map { p ->
-            p.key to p.value.map { it.second }.flatten()
-        }
-        val counts = listCounts.map { pair ->
-            pair.first to pair.second.groupingBy { it }.eachCount()
-        }
-
-        return counts.toMap()
-    }
-
-    private fun processData(list: List<String>): List<Pair<List<String>, List<String>>> {
+    private fun processData(list: List<String>): List<Pair<Set<String>, Set<String>>> {
         val regex = """(.*)\(contains (.*)\)""".toRegex()
         return list.map { l ->
             regex.find(l)!!.groupValues.let { (_, i, a) ->
                 val ingredients = i.trim().split(" ")
                 val allergens = a.trim().replace(",", "").split(" ")
-                Pair(ingredients, allergens)
+                Pair(ingredients.toSet(), allergens.toSet())
             }
         }
     }
