@@ -63,18 +63,21 @@ class Day21 {
         return answer
     }
 
-    private fun getAllergenTranslation(allergenCandidates: Map<String, Set<String>>): MutableMap<String, String> {
-        var allergenCandidates1 = allergenCandidates
-        val result = mutableMapOf<String, String>()
+    private tailrec fun getAllergenTranslation(
+        allergenCandidates: Map<String, Set<String>>,
+        current: Map<String, String> = mapOf()
+    ): Map<String, String> {
+        return if (allergenCandidates.isEmpty()) {
+            current
+        } else {
+            val exactMatch = allergenCandidates.filterValues { it.size == 1 }.mapValues { (_, s) -> s.first() }
+            val remainingAllergens = allergenCandidates.mapValues { (_, ingredients) ->
+                ingredients - exactMatch.values.toSet() }
+                .filterValues { it.isNotEmpty() }
+            val newResults = current + exactMatch
 
-        while (allergenCandidates1.isNotEmpty()) {
-            val exactMatch = allergenCandidates1.filterValues { it.size == 1 }.mapValues { (_, s) -> s.first() }
-            result.putAll(exactMatch)
-            allergenCandidates1 = allergenCandidates1.mapValues { (_, ingredients) ->
-                ingredients - exactMatch.values.toSet()
-            }.filterValues { it.isNotEmpty() }
+            getAllergenTranslation(remainingAllergens, newResults)
         }
-        return result
     }
 
     private fun getAllergenCandidates(
