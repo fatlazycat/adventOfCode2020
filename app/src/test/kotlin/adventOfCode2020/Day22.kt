@@ -24,6 +24,16 @@ class Day22 {
     }
 
     @Test
+    fun testPart2() {
+        val p1 = player1.lines().map { it.toLong() }
+        val p2 = player2.lines().map { it.toLong() }
+        val game = playGameRecursiveCombat(p1, p2, listOf()).second
+        val result = game.reversed().mapIndexed{ index, i -> (index+1) * i }.sum()
+
+        assert(result == 31835L)
+    }
+
+    @Test
     fun testPart2test() {
         val p1 = player1Test.lines().map { it.toLong() }
         val p2 = player2Test.lines().map { it.toLong() }
@@ -33,29 +43,47 @@ class Day22 {
         assert(result == 291L)
     }
 
-    private fun playGameRecursiveCombat(p1: List<Long>, p2: List<Long>, previous: List<Pair<List<Long>, List<Long>>>): Pair<Boolean, List<Long>> {
+    private tailrec fun playGameRecursiveCombat(p1: List<Long>, p2: List<Long>, previous: List<Pair<List<Long>, List<Long>>>): Pair<Boolean, List<Long>> {
         return when {
-            p1.isEmpty() -> Pair(false, p2)
-            p2.isEmpty() -> Pair(truen, p1)
-            previousRoundMatch(Pair(p1, p2), previous) -> return Pair(true, p1)
+            p1.isEmpty() -> {
+                Pair(false, p2)
+            }
+            p2.isEmpty() -> {
+                Pair(true, p1)
+            }
+            previousRoundMatch(Pair(p1, p2), previous) ->{
+                Pair(true, p1)
+            }
             else -> {
                 val p1Top = p1.first()
                 val p2Top = p2.first()
                 val p1Remaining = p1.drop(1)
-                val p2remaining = p2.drop(1)
+                val p2Remaining = p2.drop(1)
 
-                if(p1Remaining.size >= p1Top && p2remaining.size >= p2Top) {
+                if(p1Remaining.size >= p1Top && p2Remaining.size >= p2Top) {
+                    val resultOfSubGame = playGameRecursiveCombat(p1Remaining.take(p1Top.toInt()), p2Remaining.take(p2Top.toInt()), listOf())
+
+                    if(resultOfSubGame.first)
+                        playGameRecursiveCombat(p1Remaining + p1Top + p2Top, p2Remaining, previous + Pair(p1, p2))
+                    else
+                        playGameRecursiveCombat(p1Remaining, p2Remaining + p2Top + p1Top, previous + Pair(p1, p2))
 
                 } else {
                     if(p1Top > p2Top)
-                        playGameRecursiveCombat(p1Remaining + p1Top + p2Top, p2remaining, )
+                        playGameRecursiveCombat(p1Remaining + p1Top + p2Top, p2Remaining, previous + Pair(p1, p2))
                     else
-                        playGameRecursiveCombat(p1Remaining, p2remaining + p2Top + p1Top)
+                        playGameRecursiveCombat(p1Remaining, p2Remaining + p2Top + p1Top, previous + Pair(p1, p2))
                 }
-
-                Pair(true, listOf())
             }
         }
+    }
+
+    @Test
+    fun testPreviousRoundMatch() {
+        val toMatch = Pair(listOf(2L,3L,4L,5L), listOf(7L,8L,9L,10L))
+        val previousRounds = listOf(Pair(listOf(1L,2L,3L,4L,5L), listOf(6L,7L,8L,9L,10L)), Pair(listOf(2L,3L,4L,5L), listOf(7L,8L,9L,10L)))
+
+        assert(previousRoundMatch(toMatch, previousRounds))
     }
 
     private fun previousRoundMatch(current: Pair<List<Long>, List<Long>>, previous: List<Pair<List<Long>, List<Long>>>): Boolean {
