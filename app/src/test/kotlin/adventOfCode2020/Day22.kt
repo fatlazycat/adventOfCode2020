@@ -100,7 +100,6 @@ class Day22 {
                 playGame(p1.drop(1) + p1.first() + p2.first(), p2.drop(1))
             else
                 playGame(p1.drop(1), p2.drop(1) + p2.first() + p1.first())
-
         }
     }
 
