@@ -1,7 +1,6 @@
 package adventOfCode2020
 
 import org.junit.Test
-import java.util.*
 
 class Day23 {
     private val puzzleInput = "962713854"
@@ -36,40 +35,9 @@ class Day23 {
     }
 
     @Test
-    fun testPart1testMutable() {
-        val numbers = puzzleInputTest.toCharArray().map { it.toString().toInt() }.toList()
-        val puzzle = LinkedList<Int>()
-        puzzle.addAll(numbers)
-
-        val result = processGameMutable(puzzle, 10)
-        assert(result == listOf(8, 3, 7, 4, 1, 9, 2, 6, 5))
-    }
-
-    @Test
-    fun testPart1Mutable() {
-        val numbers = puzzleInput.toCharArray().map { it.toString().toInt() }.toList()
-        val puzzle = LinkedList<Int>()
-        puzzle.addAll(numbers)
-
-        val result = getResult(processGameMutable(puzzle, 100))
-        assert(result == "65432978")
-    }
-
-    @Test
-    fun testPart2testArrayOfIndexes() {
-        val numbers = puzzleInputTest.toCharArray().map { it.toString().toInt() }.toList()
-        val result = processGameArray(numbers, 10000000)
-        val n1 = result[0]
-        val n2 = result[n1]
-        val answer = (n1+1).toLong() * (n2+1).toLong()
-
-        assert( answer == 149245887792L)
-    }
-
-    @Test
-    fun testPart2ArrayOfIndexes() {
-        val numbers = puzzleInput.toCharArray().map { it.toString().toInt() }.toList()
-        val result = processGameArray(numbers, 10000000)
+    fun testPart2() {
+        val numbers = puzzleInput.toCharArray().map { it.toString().toInt() - 1}.toList()
+        val result = processGameArrayOfNextLocations(numbers, 10000000, 1000000)
         val n1 = result[0]
         val n2 = result[n1]
         val answer = (n1+1).toLong() * (n2+1).toLong()
@@ -77,31 +45,60 @@ class Day23 {
         assert(answer == 287230227046)
     }
 
-    private fun processGameArray(numbers: List<Int>, rounds: Int) : IntArray {
-        val arr = IntArray(1000000) { it + 1 }
+    @Test
+    fun testPart2test() {
+        val numbers = puzzleInputTest.toCharArray().map { it.toString().toInt() - 1}.toList()
+        val result = processGameArrayOfNextLocations(numbers, 10000000, 1000000)
+        val n1 = result[0]
+        val n2 = result[n1]
+        val answer = (n1+1).toLong() * (n2+1).toLong()
+
+        assert( answer == 149245887792L)
+    }
+
+    private fun processGameArrayOfNextLocations(numbers: List<Int>, rounds: Int, totalNumbers: Int ) : IntArray {
+        // create array where contents of index points to next location
+        val arr = IntArray(totalNumbers) { it + 1 }
+        arr[arr.lastIndex] = numbers.first()
+
+        // put the data set into appropriate contents
         for ((i, n) in numbers.withIndex()) {
-            arr[n - 1] = numbers.getOrElse(i + 1) { 10 } - 1
+            arr[n] = numbers.getOrElse(i+1) { 9 }
         }
-        var x = numbers.first() - 1
+
+        // make last index point to
+        var x = numbers.first()
         arr[arr.lastIndex] = x
-        repeat(10000000) { x = step(arr, x) }
+
+        repeat(rounds) {
+            x = playRound(arr, x)
+        }
         return arr
     }
 
-    private fun step(arr: IntArray, x: Int): Int {
-        val a = arr[x]
-        val b = arr[a]
-        val c = arr[b]
-        val y = arr[c]
-        var t = x
+    private fun playRound(arr: IntArray, current: Int): Int {
+        val next1 = arr[current]
+        val next2 = arr[next1]
+        val next3 = arr[next2]
+        val next4 = arr[next3]
+        var insertionNumber = current
+
+        // get insertion point, skip matching of then three number
         do {
-            t = if (t > 0) t - 1 else arr.lastIndex
-        } while (t == a || t == b || t == c)
-        val u = arr[t]
-        arr[x] = y
-        arr[t] = a
-        arr[c] = u
-        return y
+            insertionNumber = if (insertionNumber > 0) insertionNumber - 1 else arr.lastIndex
+        } while (insertionNumber == next1 || insertionNumber == next2 || insertionNumber == next3)
+
+        val whereInsertionUseToPoint = arr[insertionNumber]
+
+        // repair the hole
+        arr[current] = next4
+
+        // insert the three numbers in correct location
+        arr[insertionNumber] = next1
+        arr[next3] = whereInsertionUseToPoint
+
+        // return the next number to process
+        return next4
     }
 
     private fun getResult(numbers: List<Int>): String {
@@ -109,48 +106,6 @@ class Day23 {
         val before = numbers.take(index)
         val after = numbers.takeLast(numbers.size - index - 1)
         return (after + before).joinToString("")
-    }
-
-    private fun processGameMutable(numbers: LinkedList<Int>, roundsToGo: Int): LinkedList<Int> {
-
-        for (i in 0 until roundsToGo) {
-            if (i % 1000 == 0)
-                println("$i")
-
-            val currentCup = numbers[0]
-            val n1 = numbers[1]
-            val n2 = numbers[2]
-            val n3 = numbers[3]
-            val index = findInsertionPoint(numbers, currentCup, n1, n2, n3)
-
-            numbers.addAll(index + 1, mutableListOf(n1, n2, n3))
-
-            numbers.remove()
-            numbers.remove()
-            numbers.remove()
-            numbers.remove()
-
-            numbers.add(currentCup)
-        }
-
-        return numbers
-    }
-
-    private fun findInsertionPoint(numbers: LinkedList<Int>, current: Int, n1: Int, n2: Int, n3: Int): Int {
-        val size = numbers.count()
-        var n = current - 1
-
-        if (n == 0)
-            n = size
-
-        while (n == n1 || n == n2 || n == n3) {
-            n -= 1
-
-            if (n == 0)
-                n = size
-        }
-
-        return numbers.indexOf(n)
     }
 
     private tailrec fun processGame(numbers: List<Int>, roundsToGo: Int): List<Int> {
