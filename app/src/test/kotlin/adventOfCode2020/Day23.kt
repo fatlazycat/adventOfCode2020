@@ -18,7 +18,7 @@ class Day23 {
     fun testPart1test() {
         val numbers = puzzleInputTest.toCharArray().map { it.toString().toInt() }.toList()
         val result = processGame(numbers, 10)
-        assert(result == listOf(8,3,7,4,1,9,2,6,5))
+        assert(result == listOf(8, 3, 7, 4, 1, 9, 2, 6, 5))
     }
 
     @Test
@@ -42,7 +42,7 @@ class Day23 {
         puzzle.addAll(numbers)
 
         val result = processGameMutable(puzzle, 10)
-        assert(result == listOf(8,3,7,4,1,9,2,6,5))
+        assert(result == listOf(8, 3, 7, 4, 1, 9, 2, 6, 5))
     }
 
     @Test
@@ -56,16 +56,52 @@ class Day23 {
     }
 
     @Test
-    fun testPart2testMutable() {
+    fun testPart2testArrayOfIndexes() {
         val numbers = puzzleInputTest.toCharArray().map { it.toString().toInt() }.toList()
-        val lotsOfNumbers = (numbers + (10..1000000))
-        val puzzle = LinkedList<Int>()
-        puzzle.addAll(numbers)
-        puzzle.addAll(lotsOfNumbers)
+        val result = processGameArray(numbers, 10000000)
+        val n1 = result[0]
+        val n2 = result[n1]
+        val answer = (n1+1).toLong() * (n2+1).toLong()
 
-        val result = processGameMutable(puzzle, 10000000)
+        assert( answer == 149245887792L)
+    }
 
-        println("0 = $result[0], 1 = $result[1], 0 = $result[1]")
+    @Test
+    fun testPart2ArrayOfIndexes() {
+        val numbers = puzzleInput.toCharArray().map { it.toString().toInt() }.toList()
+        val result = processGameArray(numbers, 10000000)
+        val n1 = result[0]
+        val n2 = result[n1]
+        val answer = (n1+1).toLong() * (n2+1).toLong()
+
+        assert(answer == 287230227046)
+    }
+
+    private fun processGameArray(numbers: List<Int>, rounds: Int) : IntArray {
+        val arr = IntArray(1000000) { it + 1 }
+        for ((i, n) in numbers.withIndex()) {
+            arr[n - 1] = numbers.getOrElse(i + 1) { 10 } - 1
+        }
+        var x = numbers.first() - 1
+        arr[arr.lastIndex] = x
+        repeat(10000000) { x = step(arr, x) }
+        return arr
+    }
+
+    private fun step(arr: IntArray, x: Int): Int {
+        val a = arr[x]
+        val b = arr[a]
+        val c = arr[b]
+        val y = arr[c]
+        var t = x
+        do {
+            t = if (t > 0) t - 1 else arr.lastIndex
+        } while (t == a || t == b || t == c)
+        val u = arr[t]
+        arr[x] = y
+        arr[t] = a
+        arr[c] = u
+        return y
     }
 
     private fun getResult(numbers: List<Int>): String {
@@ -77,8 +113,8 @@ class Day23 {
 
     private fun processGameMutable(numbers: LinkedList<Int>, roundsToGo: Int): LinkedList<Int> {
 
-        for(i in 0 until roundsToGo) {
-            if(i % 1000 == 0)
+        for (i in 0 until roundsToGo) {
+            if (i % 1000 == 0)
                 println("$i")
 
             val currentCup = numbers[0]
@@ -87,16 +123,14 @@ class Day23 {
             val n3 = numbers[3]
             val index = findInsertionPoint(numbers, currentCup, n1, n2, n3)
 
-            numbers.add(index + 1, n3)
-            numbers.add(index + 1, n2)
-            numbers.add(index + 1, n1)
+            numbers.addAll(index + 1, mutableListOf(n1, n2, n3))
 
             numbers.remove()
             numbers.remove()
             numbers.remove()
             numbers.remove()
 
-            numbers.addLast(currentCup)
+            numbers.add(currentCup)
         }
 
         return numbers
@@ -104,7 +138,7 @@ class Day23 {
 
     private fun findInsertionPoint(numbers: LinkedList<Int>, current: Int, n1: Int, n2: Int, n3: Int): Int {
         val size = numbers.count()
-        var n = current-1
+        var n = current - 1
 
         if (n == 0)
             n = size
@@ -120,34 +154,33 @@ class Day23 {
     }
 
     private tailrec fun processGame(numbers: List<Int>, roundsToGo: Int): List<Int> {
-        if(roundsToGo == 0) {
+        if (roundsToGo == 0) {
             return numbers
-        }
-        else {
+        } else {
             val currentCup = numbers.first()
             val remainingCups = numbers.drop(1)
             val threeCups = remainingCups.take(3)
             val allCupsWithoutThree = listOf(currentCup) + remainingCups.drop(3)
             val index = findInsertionPoint(allCupsWithoutThree, currentCup)
-            val before = allCupsWithoutThree.take(index+1)
+            val before = allCupsWithoutThree.take(index + 1)
             val after = allCupsWithoutThree.takeLast(allCupsWithoutThree.size - index - 1)
             val rearrangedRemainingCups = before +
                     threeCups +
                     after
 
-            return processGame(rearrangedRemainingCups.drop(1) + rearrangedRemainingCups.first(), roundsToGo-1)
+            return processGame(rearrangedRemainingCups.drop(1) + rearrangedRemainingCups.first(), roundsToGo - 1)
         }
     }
 
     private tailrec fun findInsertionPoint(allCupsWithoutThree: List<Int>, currentCup: Int): Int {
-        val nextCup = when(currentCup) {
+        val nextCup = when (currentCup) {
             1 -> 9
             else -> currentCup - 1
         }
 
         val index = allCupsWithoutThree.indexOf(nextCup)
 
-        return if(index == -1)
+        return if (index == -1)
             findInsertionPoint(allCupsWithoutThree, nextCup)
         else
             index
