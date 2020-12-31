@@ -16,14 +16,17 @@ class Day25 {
         assert(findLoopSize(cardPublicKey) == 3974372)
         assert(findLoopSize(doorPublicKey) == 8623737)
 
-        assert(calc(doorPublicKeyTest, 8) == 14897079L)
-        assert(calc(cardPublicKeyTest, 11) == 14897079L)
-        assert(calc(doorPublicKey, 3974372) == 16902792L)
-        assert(calc(cardPublicKey, 8623737) == 16902792L)
+        assert(transform(doorPublicKeyTest, 8) == 14897079L)
+        assert(transform(cardPublicKeyTest, 11) == 14897079L)
+        assert(transform(doorPublicKey, 3974372) == 16902792L)
+        assert(transform(cardPublicKey, 8623737) == 16902792L)
     }
 
     private fun findLoopSize(target: Long): Int =
         generateSequence(1L) { loopSize -> calc(7, loopSize) }.indexOf(target)
 
     private fun calc(subjectNumber: Long, loopSize: Long): Long = (subjectNumber * loopSize) % 20201227L
+
+    private fun transform(subject: Long, loopSize: Int): Long =
+        generateSequence(1L) { calc(subject, it) }.drop(loopSize).first()
 }
