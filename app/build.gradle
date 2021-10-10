@@ -34,3 +34,9 @@ application {
     // Define the main class for the application.
     mainClass = 'adventOfCode2020.AppKt'
 }
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget=1.8
+    }
+}

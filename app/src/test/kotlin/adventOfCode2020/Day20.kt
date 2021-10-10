@@ -244,12 +244,12 @@ class Day20 {
     ): Pair<Long, Array<CharArray>>? {
         val r = findMatches(Side.RIGHT, Side.LEFT, gridKey, grid, grids.toList()).distinctBy { it.first }
 
-        if (r.size > 1) {
+        return if (r.size > 1) {
             throw UnsupportedOperationException()
         } else if (r.size == 1) {
-            return r[0]
+            r[0]
         } else {
-            return null
+            null
         }
     }
 
