@@ -1,6 +1,7 @@
 package adventOfCode2020
 
 import org.junit.Test
+import java.util.*
 
 enum class Op {
     NOP,
@@ -51,7 +52,7 @@ class Day8 {
             else if (currentStep > data.size || currentStep < 0)
                 return Pair(false, -1)
 
-            val p = data[currentStep]!!
+            val p = data[currentStep]
 
             entriesDone.add(currentStep)
 
@@ -78,6 +79,6 @@ class Day8 {
 
     private fun makeEntry(s: String): Pair<Op, Int> {
         val parts = s.split(" ")
-        return Pair(Op.valueOf(parts[0].toUpperCase()), parts[1].toInt())
+        return Pair(Op.valueOf(parts[0].uppercase(Locale.getDefault())), parts[1].toInt())
     }
 }

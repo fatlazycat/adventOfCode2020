@@ -159,20 +159,20 @@ class Stack<T>{
 
 fun <T> Stack<T>.push(items: Collection<T>) = items.forEach { this.push(it) }
 
-const val ZERO = '0'.toInt()
-const val NINE = '9'.toInt()
-const val SPACE = ' '.toInt()
-const val LEFT = '('.toInt()
-const val RIGHT = ')'.toInt()
-const val MULTIPLY = '*'.toInt()
-const val ADD = '+'.toInt()
+const val ZERO = '0'.code
+const val NINE = '9'.code
+const val SPACE = ' '.code
+const val LEFT = '('.code
+const val RIGHT = ')'.code
+const val MULTIPLY = '*'.code
+const val ADD = '+'.code
 
 fun evalEqualPrecedence(str: String): Long {
     return object : Any() {
         var pos = -1
         var ch = 0
         fun nextChar() {
-            ch = if (++pos < str.length) str[pos].toInt() else -1
+            ch = if (++pos < str.length) str[pos].code else -1
         }
 
         fun eat(charToEat: Int): Boolean {
@@ -234,7 +234,7 @@ fun evalPlusFirst(str: String): Long {
         var pos = -1
         var ch = 0
         fun nextChar() {
-            ch = if (++pos < str.length) str[pos].toInt() else -1
+            ch = if (++pos < str.length) str[pos].code else -1
         }
 
         fun eat(charToEat: Int): Boolean {
